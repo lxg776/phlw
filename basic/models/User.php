@@ -2,49 +2,67 @@
 
 namespace app\models;
 
-class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
+
+class User extends BaseBean implements \yii\web\IdentityInterface
 {
     public $id;
     public $username;
     public $password;
     public $authKey;
     public $accessToken;
+    public $sex;
 
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'password' => 'admin',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'password' => 'demo',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
-    ];
+
+
+
+    public static function tableName(){
+        return 'ucenter_user';
+    }
+
 
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public static function findIdentity($id)
+
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        $user =new User();
+
+        $query = \Yii::$app->getDb()->createCommand("select u.*,t.access_token from ucenter_user as u left JOIN ucenter_user_token as t on u.user_id = t.user_id where u.user_id = :user_id ",[':user_id' => $id])->queryOne();
+        //  $query = Yii::$app->getDb()->createCommand("select u.*,t.access_token from ucenter_user as u left JOIN ucenter_user_token as t on u.user_id = t.user_id where t.access_token = :token ",[':token' => $token])->queryAll();
+        $length = sizeof($query);
+        if($length>1){
+            $user->id = $query['user_id'];
+            $user->username= $query['user_name'];
+            $user->accessToken = $query['access_token'];
+            $user->password  = $query['password'];
+            $user->sex = $query['sex'];
+            return $user;
+        }
+
+        return null;
+
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        foreach (self::$users as $user) {
-            if ($user['accessToken'] === $token) {
-                return new static($user);
-            }
+
+        $user =new User();
+
+        $query = \Yii::$app->getDb()->createCommand("select u.*,t.access_token from ucenter_user as u left JOIN ucenter_user_token as t on u.user_id = t.user_id where t.access_token = :token ",[':token' => $token])->queryOne();
+      //  $query = Yii::$app->getDb()->createCommand("select u.*,t.access_token from ucenter_user as u left JOIN ucenter_user_token as t on u.user_id = t.user_id where t.access_token = :token ",[':token' => $token])->queryAll();
+        $length = sizeof($query);
+        if($length>1){
+            $user->id = $query['user_id'];
+            $user->username= $query['user_name'];
+            $user->accessToken = $query['access_token'];
+            $user->password  = $query['password'];
+            $user->sex = $query['sex'];
+            return $user;
         }
 
         return null;
@@ -58,17 +76,27 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
      */
     public static function findByUsername($username)
     {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
-        }
+        $result = UcenterUser::find()->where(['user_name' => $username])->all();
+        $length = sizeof($result);
 
+        if($length>0){
+            $array = self::result2Array($result);
+
+           // $t  = json_decode(json_encode($array));
+
+            $bean = new User();
+
+
+            $bean->username = $array[0]['user_name'];
+            $bean->password = $array[0]['password'];
+
+            return $bean;
+        }
         return null;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getId()
     {
@@ -76,7 +104,7 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getAuthKey()
     {
@@ -84,7 +112,7 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function validateAuthKey($authKey)
     {

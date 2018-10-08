@@ -1,15 +1,28 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/7/23 0023
- * Time: 上午 10:41
+ * User: sunshine
+ * Date: 18/7/27
+ * Time: 20:05
  */
 
 namespace app\models;
-use yii\db\ActiveRecord;
 
-class UcenterUser extends  ActiveRecord
+
+
+
+
+class UcenterUser extends BaseBean
 {
+
+
+
+    public static function simplifyData($data){
+        foreach($data as $key=>$val){
+            $newData[$key] = $val->attributes;
+        }
+        return $newData;
+    }
+
 
 }

@@ -2,10 +2,10 @@
 
 namespace app\controllers;
 
+use app\models\User;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
-use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
@@ -13,7 +13,7 @@ use app\models\ContactForm;
 class SiteController extends Controller
 {
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function behaviors()
     {
@@ -39,7 +39,7 @@ class SiteController extends Controller
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function actions()
     {
@@ -61,13 +61,20 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+
+
+        $query = \Yii::$app->getDb()->createCommand("select u.*,t.access_token from ucenter_user as u left JOIN ucenter_user_token as t on u.user_id = t.user_id where t.access_token = :token ",[':token' => '9527'])->queryOne();
+        //  $query = Yii::$app->getDb()->createCommand("select u.*,t.access_token from ucenter_user as u left JOIN ucenter_user_token as t on u.user_id = t.user_id where t.access_token = :token ",[':token' => $token])->queryAll();
+
+        $length = sizeof($query);
+
         return $this->render('index');
     }
 
     /**
      * Login action.
      *
-     * @return Response|string
+     * @return string
      */
     public function actionLogin()
     {
@@ -79,8 +86,6 @@ class SiteController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goBack();
         }
-
-        $model->password = '';
         return $this->render('login', [
             'model' => $model,
         ]);
@@ -89,7 +94,7 @@ class SiteController extends Controller
     /**
      * Logout action.
      *
-     * @return Response
+     * @return string
      */
     public function actionLogout()
     {
@@ -101,7 +106,7 @@ class SiteController extends Controller
     /**
      * Displays contact page.
      *
-     * @return Response|string
+     * @return string
      */
     public function actionContact()
     {
@@ -125,7 +130,4 @@ class SiteController extends Controller
     {
         return $this->render('about');
     }
-
-
-
 }
