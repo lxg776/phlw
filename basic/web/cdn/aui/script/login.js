@@ -11,16 +11,22 @@ $(function() {
 		}
 	});
 });
+
 // 登录
 function login() {
+	url = "http://127.0.0.1/hlw/basic/web/index.php?r=web/do-login";
+
+    var csrfToken = $('meta[name="csrf-token"]').attr("content");
+
+
 	$.ajax({
-		url: BASE_PATH + '/sso/login',
+		url: url,
 		type: 'POST',
 		data: {
 			username: $('#username').val(),
 			password: $('#password').val(),
-			rememberMe: $('#rememberMe').is(':checked'),
-			backurl: BACK_URL
+            _csrf:csrfToken,
+
 		},
 		beforeSend: function() {
 
@@ -29,13 +35,8 @@ function login() {
 			if (json.code == 1) {
 				location.href = json.data;
 			} else {
-				alert(json.data);
-				if (10101 == json.code) {
-					$('#username').focus();
-				}
-				if (10102 == json.code) {
-					$('#password').focus();
-				}
+
+                msg(json.message);
 			}
 		},
 		error: function(error){
@@ -43,3 +44,4 @@ function login() {
 		}
 	});
 }
+

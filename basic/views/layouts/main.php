@@ -18,10 +18,12 @@ AppAsset::register($this);
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
-    <script src="/basic/web/cdn/bootstrap/js/jquery-3.2.1.min.js"></script>
+    <script src="/hlw/basic/web/cdn/bootstrap/js/jquery-3.2.1.min.js"></script>
+    <link href="/hlw/basic/web/cdn/aui/css/aui.css" rel="stylesheet">
+
 </head>
 <body>
-<?php $this->beginBody() ?>
+
 
 <div class="wrap">
 
@@ -33,7 +35,7 @@ AppAsset::register($this);
 </div>
 
 
-<?php $this->endBody() ?>
+
 </body>
 </html>
-<?php $this->endPage() ?>
+

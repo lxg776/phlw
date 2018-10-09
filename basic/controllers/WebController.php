@@ -56,26 +56,55 @@ class WebController extends Controller
 
 
     public function actionDoLogin($username = "",$password= ""){
-        $model = new LoginForm();
 
-        $model->username = $username;
-        $model->password = $password;
-        echo "1";
 
-        $view = Yii::$app->getView();//此处的view实例与视图中的view（默认的$this变量）为同一个。所以此处保存的参数在视图中也可以用
-        $view->params['testView'] = 'testView'; //因为是同一个布局变量，所以在视图中也可以使用
 
-        if($model->validate()){
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        if(Yii::$app->request->isPost==1){
 
-            $model->login();
+           $username =  Yii::$app->request->post("username", "");
+           $password =  Yii::$app->request->post("password", "");
 
-            echo "登录成功!";
+            $model = new LoginForm();
+            $model->username = $username;
+            $model->password = $password;
+
+            if($model->validate()){
+                $model->login();
+                $ss =1;
+                return [
+                    'message' => '登录成功',
+                    'code' => 1,
+                    'data'=>"",
+                ];
+
+
+            }else{
+
+                $error = $model->errors['password'][0];
+
+
+                return [
+                    'message' =>$error,
+                    'code' => 0,
+                    'data'=>"",
+                ];
+
+            }
         }else{
-            $error = $model->errors;
-            $test = 1;
-
-            return $this->render('h5_login');
+            return [
+                'message' =>"系统错误!",
+                'code' => 0,
+                'data'=>"",
+            ];
         }
 
+
+
+
+
+
     }
+
+
 }
