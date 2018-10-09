@@ -22,7 +22,7 @@ class AppAsset extends AssetBundle
     ];
     public $js = [
 
-        'cdn/bootstrap/js/jquery-3.2.1.min.js',
+
         'cdn/aui/script/api.js',
 
     ];

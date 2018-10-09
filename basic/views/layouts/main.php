@@ -18,6 +18,7 @@ AppAsset::register($this);
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
+    <script src="/basic/web/cdn/bootstrap/js/jquery-3.2.1.min.js"></script>
 </head>
 <body>
 <?php $this->beginBody() ?>

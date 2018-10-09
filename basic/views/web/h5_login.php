@@ -3,11 +3,6 @@
 /* @var $this yii\web\View */
 
 use yii\helpers\Html;
-
-
-
-
-
 ?>
 
 
@@ -34,7 +29,7 @@ use yii\helpers\Html;
 
 </header>
 
-
+<form id="form" name="form" method="POST" action="http://127.0.0.1/basic/web/index.php?r=web/do-login" enctype="" >
 <div class="aui-content aui-margin-b-15" style="margin-top: 1rem;">
     <ul class="aui-list aui-form-list">
 
@@ -68,14 +63,13 @@ use yii\helpers\Html;
     <p><div class="aui-btn aui-btn-info aui-btn-block" id="login-bt">登 录</div></p>
     <p><div class="aui-btn aui-btn-primary aui-btn-block"  id="reg_btn" style="margin-top: 1rem;">注 册</div></div>
 </div>
+</form>
 
 
 
 <div class="aui-card-list-header aui-padded-t-5 aui-padded-b-5" >
     实名上墙 |  非诚勿扰  |  找到你的另一半
 </div>
-
-
 <script language="JavaScript">
 
 
@@ -83,6 +77,14 @@ use yii\helpers\Html;
     //     window.location.href='${ctx}/h5/reg';
     // });
 
+
+
+
+    $("#login-bt").click(function(){
+            $("#form").submit(function(e){
+                alert("Submitted");
+            });
+    });
 
     $("#backBtn").click(function(){
         window.history.back();
@@ -92,6 +94,10 @@ use yii\helpers\Html;
 
 
 </script>
+
+
+
+
 
 
 

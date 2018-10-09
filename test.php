@@ -1,8 +1,8 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: sunshine
- * Date: 18/7/26
- * Time: 21:32
+ * User: Administrator
+ * Date: 2018/8/16 0016
+ * Time: 下午 5:33
  */
-echo  "wtf99";
+phpinfo();

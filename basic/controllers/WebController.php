@@ -50,6 +50,32 @@ class WebController extends Controller
      */
     public function actionLogin()
     {
+
         return $this->render('h5_login');
+    }
+
+
+    public function actionDoLogin($username = "",$password= ""){
+        $model = new LoginForm();
+
+        $model->username = $username;
+        $model->password = $password;
+        echo "1";
+
+        $view = Yii::$app->getView();//此处的view实例与视图中的view（默认的$this变量）为同一个。所以此处保存的参数在视图中也可以用
+        $view->params['testView'] = 'testView'; //因为是同一个布局变量，所以在视图中也可以使用
+
+        if($model->validate()){
+
+            $model->login();
+
+            echo "登录成功!";
+        }else{
+            $error = $model->errors;
+            $test = 1;
+
+            return $this->render('h5_login');
+        }
+
     }
 }
