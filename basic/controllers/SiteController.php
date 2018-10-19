@@ -71,6 +71,10 @@ class SiteController extends Controller
         return $this->render('index');
     }
 
+
+
+
+
     /**
      * Login action.
      *
@@ -100,7 +104,8 @@ class SiteController extends Controller
     {
         Yii::$app->user->logout();
 
-        return $this->goHome();
+        return $this->render('h5_login');
+
     }
 
     /**

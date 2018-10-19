@@ -1,31 +1,23 @@
 <?php
 
 /* @var $this yii\web\View */
+use app\assets\AppAsset;
 
-use yii\helpers\Html;
+AppAsset::register($this);  // $this 代表视图对象
+
+$this->head();
+
+$baseUrl = \Yii::$app->request->baseUrl;
+
 ?>
-
-
-
-
-
-    <!-- start: CSS -->
-    <style type="text/css">
-        #demo {
-            background-color: #e0e0e0;
-        }
-    </style>
-
-
-
-
-
 
 <header class="aui-bar aui-bar-nav">
     <a class="aui-pull-left aui-btn" id="backBtn">
         <span class="aui-iconfont aui-icon-left"></span>返回
     </a>
     <div class="aui-title">婚恋墙</div>
+
+
 
 </header>
 
@@ -139,9 +131,12 @@ use yii\helpers\Html;
             });
         }
 
-    $("#reg_btn").click(function(){
-        window.location.href='${ctx}/h5/reg';
-    });
+
+
+        $("#reg_btn").click(function(){
+            url = "<?php echo $baseUrl."/index.php?r=web/reg"?>";
+            window.location.href = url;
+        });
 
 
 
@@ -161,6 +156,14 @@ use yii\helpers\Html;
 
 
 </script>
+
+
+
+
+
+
+
+
 
 
 

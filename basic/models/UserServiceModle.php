@@ -16,11 +16,59 @@ class UserServiceModle extends Model
 
 
 
+    public function sendMessage($userId,$friendId,$content){
+
+
+        $sql = "insert INTO f_message(from_user_id,to_user_id,msg_content,msg_state) VALUES (:from_user_id,:to_user_id,:msg_content,:msg_state)";
+
+        $query  = \Yii::$app->getDb()->createCommand($sql,[':from_user_id'=>$userId,':to_user_id'=>$friendId,':msg_content'=>$content,':msg_state'=>0 ])->execute();
+
+    }
+
+
+    public function helpContact($f_user_id,$t_user_id){
+
+        $f_user_id = (int) $f_user_id;
+
+        $querySql =  "select id,contact_count from f_contact where f_user_id=:f_user_id and t_user_id=:t_user_id";
+
+        $query  = \Yii::$app->getDb()->createCommand($querySql,[':f_user_id'=>$f_user_id,':t_user_id'=>$t_user_id ])->queryOne();
+
+        $num = count($query);
+
+        if($num>1){
+            $updateSql = "update f_contact SET contact_count=:contact_count where id =:id";
+            $contact_count = $query['contact_count']+1;
+            $id = $query['id'];
+            \Yii::$app->getDb()->createCommand($updateSql,[':contact_count'=>$contact_count,':id'=>$id])->execute();
+
+
+        }else{
+
+            $query2 =  \Yii::$app->getDb()->createCommand($querySql,[':f_user_id'=>$t_user_id,':t_user_id'=>$f_user_id ])->queryOne();
+            $num2 = count($query2);
+            $updateSql = "update f_contact SET contact_count=:contact_count,both_status=:both_status  where id =:id";
+            if($num2>1){
+                $contact_count2 = $query2['contact_count']+1;
+                \Yii::$app->getDb()->createCommand($updateSql,[':contact_count'=>$contact_count2,':both_status'=>0])->execute();
+
+            }else{
+                $insertSql = "insert into f_contact(f_user_id,t_user_id,contact_count)values(:f_user_id,:t_user_id,1)";
+                \Yii::$app->getDb()->createCommand($insertSql,[':f_user_id'=>$f_user_id,'t_user_id'=>$t_user_id])->execute();
+
+            }
+
+        }
+
+    }
+
+
     public function selectViewRecordUsers($userId){
 
-        $sql = "select r.view_time as r_view_time, r.b_user_id as r_b_user_id,base.user_id as base_user_id,base.nikename,base.avatar as b_avatar,base.birth_date,base.height,base.month_income,base.education,base.marital_status 
+        $sql = "select r.view_time as r_view_time, r.b_user_id as r_b_user_id,base.user_id as base_user_id,base.nikename,base.avatar as b_avatar,base.birth_date,base.height,base.month_income,base.education,base.marital_status , uc.sex
           from f_user_view_record  as r
           left join f_user_base_msg as base on r.f_user_id = base.user_id
+          left join ucenter_user as uc on r.f_user_id = uc.user_id
           where r.b_user_id=:userId GROUP BY r.f_user_id
           order by r.view_time desc
          ";
@@ -35,6 +83,8 @@ class UserServiceModle extends Model
             if($birth_date){
                 $age = CommonUtil::getAge($birth_date);
                 $query[$i]['age'] = $age ;
+            }else{
+                $query[$i]['age'] = '' ;
             }
 
         }
@@ -45,6 +95,24 @@ class UserServiceModle extends Model
 
     }
 
+    /**
+     * 未读信息
+     * @param $userId
+     * @param $state
+     */
+    public function  selectunReadCountByUserId($userId,$state){
+            $sql ="select COUNT(1) as total from f_message where msg_state = :state and to_user_id = :userId";
+
+            $query  = \Yii::$app->getDb()->createCommand($sql,[':userId'=>$userId,'state'=>$state ])->queryAll();
+
+            $num = count($query);
+
+            if($num>0){
+                return $query[0]['total'];
+            }
+
+            return 0;
+    }
 
 
     /**
@@ -57,8 +125,9 @@ class UserServiceModle extends Model
 
 
         $sql="    select * from
-        (select m.id,m.msg_content,m.from_user_id,m.to_user_id,m.create_time,base.*  from f_message
+        (select m.id,m.msg_content,m.from_user_id,m.to_user_id,m.create_time,base.*,base.avatar as b_avatar , uc.sex  from f_message
         as m left join f_user_base_msg as base on m.from_user_id = base.user_id
+             left join ucenter_user as uc on m.from_user_id = uc.user_id
         where to_user_id = :userId  order by m.id desc) as d left join (select from_user_id , count(id) as unReadCount  from f_message
             where to_user_id = :userId and msg_state = 0  group by from_user_id) as t on d.from_user_id = t.from_user_id ORDER BY d.create_time desc ";
 
@@ -72,6 +141,8 @@ class UserServiceModle extends Model
             if($birth_date){
                 $age = CommonUtil::getAge($birth_date);
                 $query[$i]['age'] = $age ;
+            }else{
+                $query[$i]['age'] = '不限' ;
             }
 
         }
@@ -79,6 +150,21 @@ class UserServiceModle extends Model
 
         return $query;
 
+
+    }
+
+
+    /**
+     * 增加访问记录
+     * @param $f_user_id
+     * @param $b_user_id
+     * @throws \yii\db\Exception
+     */
+    public function  addViewRecord($f_user_id,$b_user_id){
+
+        $sql = "insert into f_user_view_record(f_user_id,b_user_id) values(:f_user_id,:b_user_id)";
+
+        $query  = \Yii::$app->getDb()->createCommand($sql,[':f_user_id'=>$f_user_id,':b_user_id'=>$b_user_id])->execute();
 
     }
 
@@ -144,6 +230,21 @@ ctime,cover_image from f_activity as f  where f.show_status = 'show'  ORDER BY c
 
     }
 
+    /**根据id获取问候语模板内容
+     * @param $id
+     * @throws \yii\db\Exception
+     */
+    public function  selectGreetingContent($id){
+
+        $sql = "select content from f_greeting_temp where id = :id";
+        $query  = \Yii::$app->getDb()->createCommand($sql,[':id'=>$id])->queryOne();
+        $num = count($query);
+
+        if($num>0){
+            return $query['content'];
+        }
+        return "";
+    }
 
 
 
@@ -207,7 +308,7 @@ ctime,cover_image from f_activity as f  where f.show_status = 'show'  ORDER BY c
 
         $q2 =" base.nikename,base.birth_date,base.height,base.profession,base.marital_status,base.from_city, base.from_area ";
 
-        $q3 = "  zo.sex ,zo.height as zo_height ,zo.income_monthly ,zo.education  ";
+        $q3 = "  zo.sex ,zo.height as zo_height ,zo.income_monthly ,zo.education as zo_education, zo.age as zo_age, zo.income_monthly as zo_income_monthly";
 
         $from = " from ucenter_user as uc ";
 
@@ -235,6 +336,19 @@ ctime,cover_image from f_activity as f  where f.show_status = 'show'  ORDER BY c
         //\Yii::$app->getDb()->createCommand
 
         $query =  \Yii::$app->getDb()->createCommand($sql,[':user_id'=>$user->id,':offset' => $offset,':limit'=>$limit])->queryAll();
+
+        $num = count($query);
+        for($i=0;$i<$num;++$i){
+            $birth_date = $query[$i]['birth_date'];
+
+            if($birth_date){
+                $age = CommonUtil::getAge($birth_date);
+                $query[$i]['age'] = $age ;
+            }else{
+                $query[$i]['age'] = "" ;
+            }
+
+        }
 
         return $query;
 
@@ -297,6 +411,8 @@ ctime,cover_image from f_activity as f  where f.show_status = 'show'  ORDER BY c
         if($birth_date){
            $age = \app\util\CommonUtil::getAge($birth_date);
            $query['age'] = $age;
+        }else{
+            $query['age'] = '';
         }
 
         return $query;

@@ -26,15 +26,12 @@ class WxApiController extends BaseController
     public function behaviors()
     {
 
-
-
         $behaviors = parent::behaviors();
         $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_HTML;
         $behaviors['authenticator'] = [
             //'class' => HttpBasicAuth::className(),
             'class' => QueryParamAuth::className(),
         ];
-
         return $behaviors;
     }
 

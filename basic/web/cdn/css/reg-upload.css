@@ -1,3 +1,7 @@
+#demo {
+    background-color: #e0e0e0;
+}
+
 .delete {
     position: absolute;
     top: 0px;
@@ -66,7 +70,7 @@
     min-height: 238px;
     padding-top: 158px;
     text-align: center;
-    background: url(/cdn/aui/image.png) center 93px no-repeat;
+    background: url('/aui/image/image.png') center 93px no-repeat;
     color: #cccccc;
     font-size: 18px;
     position: relative;
@@ -131,7 +135,7 @@
 #uploader .filelist li {
     width: 110px;
     height: 110px;
-    background: url(/cdn/aui/image/bg.png) no-repeat;
+    background: url(${ctx}/aui/image/bg.png) no-repeat;
     text-align: center;
     margin: 0 8px 20px 0;
     position: relative;
@@ -261,7 +265,7 @@
     height: 40px;
     width: 100%;
     z-index: 200;
-    background: url(/cdn/aui/image/success.png) no-repeat right bottom;
+    background: url(${ctx}/aui/image/success.png) no-repeat right bottom;
 }
 
 #uploader .filelist div.file-panel {
@@ -283,7 +287,7 @@
     float: right;
     text-indent: -9999px;
     overflow: hidden;
-    background: url(/cdn/aui/image/image/icons.png) no-repeat;
+    background: url(${ctx}/aui/image/icons.png) no-repeat;
     margin: 5px 1px 1px;
     cursor: pointer;
 }

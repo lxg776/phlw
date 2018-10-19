@@ -85,10 +85,10 @@ class User extends BaseBean implements \yii\web\IdentityInterface
            // $t  = json_decode(json_encode($array));
 
             $bean = new User();
-
-
             $bean->username = $array[0]['user_name'];
             $bean->password = $array[0]['password'];
+            $bean->id = $array[0]['user_id'];
+            $bean->sex = $array[0]['sex'];
 
             return $bean;
         }
@@ -127,6 +127,11 @@ class User extends BaseBean implements \yii\web\IdentityInterface
      */
     public function validatePassword($password)
     {
-        return $this->password === $password;
+
+        $mPassword = md5("friend".$password);
+
+        return strcasecmp($this->password,$mPassword)==0;
+
+
     }
 }

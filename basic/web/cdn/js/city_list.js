@@ -6,11 +6,11 @@ function initCityData(fla) {
     $("#province").empty();
 
     $.ajax({
-        url: ctx+"/c/provinceList",
+        url: ctx+"/province-list",
         type: "GET",
         dataType: 'json',
         success: function (data) {
-            $.each(data.data.dataList, function (i, item) {
+            $.each(data.dataList, function (i, item) {
                 if (item.provinceid == dProvinceId) {
                     $("#province").append(" <option value='" + item.provinceid + "'   selected='selected'> " + item.province + "</option>");
                 } else {
@@ -32,12 +32,12 @@ function getCityList(provinceid,defaultId,dareaid,fla) {
     $("#citys").empty();
     data = "provinceid="+provinceid;
     $.ajax({
-        url: ctx+"/c/cityList",
+        url: ctx+"/city-list",
         type: "GET",
         data:data,
         dataType:'json',
         success:function(data){
-            $.each(data.data.dataList,function(i,item){
+            $.each(data.dataList,function(i,item){
                 if(defaultId&&item.cityid == defaultId ){
                     $("#citys").append(" <option value='" + item.cityid + "'   selected='selected'> " + item.city + "</option>");
                     if(fla){
@@ -67,7 +67,7 @@ function getAreasList(cityid,defaultId,fla) {
     $("#areas").empty();
     data = "cityid="+cityid;
     $.ajax({
-        url: ctx+"/c/areasList",
+        url: ctx+"/areas-list",
         type: "GET",
         data:data,
         dataType:'json',
@@ -77,7 +77,7 @@ function getAreasList(cityid,defaultId,fla) {
                 $("#areas").append(" <option value='0' selected='selected'> 不限</option>");
             }
 
-            $.each(data.data.dataList,function(i,item){
+            $.each(data.dataList,function(i,item){
                 if(defaultId&&item.areaid == defaultId ){
                     $("#areas").append(" <option value='" + item.areaid + "'   selected='selected'> " + item.area + "</option>");
                 }else{

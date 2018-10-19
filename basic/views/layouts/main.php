@@ -17,25 +17,17 @@ AppAsset::register($this);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
-    <?php $this->head() ?>
-    <script src="/hlw/basic/web/cdn/bootstrap/js/jquery-3.2.1.min.js"></script>
-    <link href="/hlw/basic/web/cdn/aui/css/aui.css" rel="stylesheet">
+
 
 </head>
 <body>
+<?php $this->beginBody() ?>
 
 
-<div class="wrap">
-
-
-    <div class="container">
 
         <?= $content ?>
-    </div>
-</div>
 
-
-
+<?php $this->endBody() ?>
 </body>
 </html>
-
+<?php $this->endPage() ?>

@@ -13,26 +13,20 @@ use yii\web\AssetBundle;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class AppAsset extends AssetBundle
+class LoginAsset extends AssetBundle
 {
     public $basePath = '@webroot';
     public $baseUrl = '@web';
     public $css = [
         'cdn/aui/css/aui.css',
 
+
     ];
     public $js = [
 
         'cdn/bootstrap/js/jquery-3.2.1.min.js',
         'cdn/aui/script/api.js',
-
     ];
-
-
-    public $jsOptions = [
-        'position' => \yii\web\View::POS_HEAD
-    ];
-
 
     //依赖关系
     public $depends = [
@@ -40,13 +34,5 @@ class AppAsset extends AssetBundle
         'yii\bootstrap\BootstrapAsset',
     ];
 
-    //定义按需加载JS方法，注意加载顺序在最后
-    public static function addScript($view, $jsfile) {
-        $view->registerJsFile($jsfile, [AppAsset::className(), 'depends' => 'backend\assets\AppAsset']);
-    }
 
-    //定义按需加载css方法，注意加载顺序在最后
-    public static function addCss($view, $cssfile) {
-        $view->registerCssFile($cssfile, [AppAsset::className(), 'depends' => 'backend\assets\AppAsset']);
-    }
 }
