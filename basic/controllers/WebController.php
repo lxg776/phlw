@@ -3,12 +3,15 @@
 namespace app\controllers;
 
 
+use app\util\CommonUtil;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\UserServiceModle;
+use app\models\SmsModle;
+
 
 
 class WebController extends Controller
@@ -52,6 +55,8 @@ class WebController extends Controller
             ],
         ];
     }
+
+
 
 
 
@@ -106,6 +111,29 @@ class WebController extends Controller
         $data =  ['modle'=>$bean,'imageBase'=>$this->imageBase,'userImages'=>$userImages,'greetingTempList'=>$greetingTempList,'userSetting'=>$userSetting];
 
         return $this->render('userDetail',$data);
+    }
+
+
+
+
+
+
+    /**
+     * 获取验证码
+     * @return
+     */
+	public function actionGegSms($phone_no){
+
+	    $serviceModle =new SmsModle();
+	    $code = CommonUtil::randomCheckCode(4);
+        $serviceModle->getSms($phone_no,"register","friends",$code);
+
+
+        return [
+            'message' =>"发送成功!",
+            'code' => 0,
+            'data'=>"",
+        ];
     }
 
 
