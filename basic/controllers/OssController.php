@@ -71,7 +71,7 @@ class OssController extends Controller
 
 
         //最大文件大小.用户可以自己设置
-        $condition = array(0=>'content-le=ngth-range', 1=>0, 2=>1048576000);
+        $condition = array(0=>'content-length-range', 1=>0, 2=>1048576000);
         $conditions[] = $condition;
 
         // 表示用户上传的数据，必须是以$dir开始，不然上传会失败，这一步不是必须项，只是为了安全起见，防止用户通过policy上传到别人的目录。

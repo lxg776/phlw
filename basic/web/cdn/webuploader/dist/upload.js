@@ -577,8 +577,18 @@
             var $li = $('#' + file.id),
                 $percent = $li.find('.progress span');
 
+                $progress01 = $li.find('.progress');
+
             $percent.css('width', percentage * 100 + '%');
+
+            if(percentage>=1){
+                $progress01.css('visibility','hidden');
+            }
+
             percentages[file.id][1] = percentage;
+
+
+
             updateTotalProgress();
         };
 

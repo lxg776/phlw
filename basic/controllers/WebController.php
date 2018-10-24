@@ -197,6 +197,103 @@ class WebController extends Controller
     }
 
 
+    public function actionCheckUsername(){
+
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $serviceModle = new UserServiceModle();
+
+
+        if(Yii::$app->request->isPost==1) {
+
+
+            $idCard = Yii::$app->request->post("idCard", "");
+            $userName = Yii::$app->request->post("userName", "");
+            $code = Yii::$app->request->post("code", "");
+
+            if ($serviceModle->isExistPhone($userName)) {
+
+                return [
+                    'message' => "手机号码已经被注册过了!",
+                    'code' => 0,
+                    'data' => "",
+                ];
+
+            }
+
+
+            if ($serviceModle->isExistIdentificaion($idCard)) {
+
+                return [
+                    'message' => "身份证已经被使用过了!",
+                    'code' => 0,
+                    'data' => "",
+                ];
+
+            }
+
+
+            $query = $serviceModle->getSmsCode($userName, "regiter");
+
+            if (!$code || $code != $query['sms_code']) {
+
+                return [
+                    'message' => "短信验证码不正确!",
+                    'code' => 0,
+                    'data' => "",
+                ];
+
+            }
+
+
+
+
+       $enddate = date('Y-m-d H:i:s');
+
+       $startdate = $query['create_time'];
+
+       $second = floor((strtotime($enddate) - strtotime($startdate)) % 86400 % 60);
+
+       if ($second > 120) {
+
+           return [
+               'message' => "短信验证码超过有效期，请重新获取！",
+               'code' => 0,
+               'data' => "",
+           ];
+
+       }
+
+        return [
+            'message' =>"验证通过!",
+            'code' => 1,
+            'data'=>"",
+        ];
+
+       }else{
+
+            return [
+                'message' =>"请post提交!",
+                'code' => 0,
+                'data'=>"",
+            ];
+
+        }
+
+
+
+
+
+
+
+
+    }
+
+
+
+
+
+
     public function actionSendGreeting(){
 
 

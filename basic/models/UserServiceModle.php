@@ -26,6 +26,70 @@ class UserServiceModle extends Model
     }
 
 
+    /**
+     * 手机是否存在
+     * @param $phone
+     * @return bool
+     * @throws \yii\db\Exception
+     */
+    public function  isExistPhone($phone){
+
+        $sql = "select COUNT(1) as total from ucenter_user where user_name = :user_name";
+
+        $query  = \Yii::$app->getDb()->createCommand($sql,[':user_name'=>$phone])->queryOne();
+
+        if($query[0]['total']>0){
+            return true;
+        }else{
+            return false;
+        }
+
+
+    }
+
+    /**
+     * 身份证是否存在
+     * @param $idcard_no
+     * @return bool
+     * @throws \yii\db\Exception
+     */
+    public function  isExistIdentificaion($idcard_no){
+
+        $sql = "select COUNT(1) as total from ucenter_identificaion where idcard_no = :idcard_no";
+
+        $query  = \Yii::$app->getDb()->createCommand($sql,[':idcard_no'=>$idcard_no])->queryOne();
+
+        if($query[0]['total']>0){
+            return true;
+        }else{
+            return false;
+        }
+
+    }
+
+    /**
+     * 获取短信验证码
+     * @param $phone_no
+     * @param $operation
+     * @return mixed
+     * @throws \yii\db\Exception
+     */
+    public function  getSmsCode($phone_no,$operation){
+
+
+       $sql = "select sms_code,create_time from f_sms_message where phone_no = :phone_no and operation = :operation ORDER BY id desc";
+       $query  = \Yii::$app->getDb()->createCommand($sql,[':phone_no'=>$phone_no,':operation'=>$operation])->queryOne();
+
+       return $query;
+    }
+
+
+
+
+
+
+
+
     public function helpContact($f_user_id,$t_user_id){
 
         $f_user_id = (int) $f_user_id;

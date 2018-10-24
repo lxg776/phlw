@@ -280,7 +280,14 @@ $baseUrl = \Yii::$app->request->baseUrl;
         initCityData();
 
 
-        $("#uploader .placeholder").css('background-image',"url('<?php echo $baseUrl ."/cdn/aui/image/image.png" ?>')")
+        $("#uploader .placeholder").css('background-image',"url('<?php echo $baseUrl ."/cdn/aui/image/image.png" ?>')");
+
+        $("#uploader .filelist li").css('background-image',"url('<?php echo $baseUrl ."/cdn/aui/image/bg.png" ?>')")
+
+
+
+
+
 
 
 
