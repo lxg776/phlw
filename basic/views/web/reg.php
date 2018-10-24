@@ -10,7 +10,7 @@ AppAsset::register($this);  // $this 代表视图对象
 $this->head();
 
 $this->registerJsFile("@web/cdn/webuploader/dist/webuploader.js",['depends'=>'yii\web\YiiAsset','position'=>\yii\web\View::POS_HEAD]);
-$this->registerJsFile("@web/cdn/webuploader/dist/upload.js",['depends'=>'yii\web\YiiAsset','position'=>\yii\web\View::POS_HEAD]);
+$this->registerJsFile("@web/cdn/webuploader/dist/upload.js",['depends'=>'yii\web\YiiAsset','position'=>\yii\web\View::POS_END]);
 
 $this->registerJsFile("@web/cdn/aui/script/aui-dialog.js",['depends'=>'yii\web\YiiAsset','position'=>\yii\web\View::POS_HEAD]);
 $this->registerJsFile("@web/cdn/js/reg_date.js",['depends'=>'yii\web\YiiAsset','position'=>\yii\web\View::POS_HEAD]);
@@ -253,7 +253,7 @@ $baseUrl = \Yii::$app->request->baseUrl;
 
 
 
-
+<input type="hidden" name="ossUrl"  value="<?php echo $baseUrl."/index.php?r=oss/policy" ?>">
 
 
 
@@ -274,11 +274,16 @@ $baseUrl = \Yii::$app->request->baseUrl;
     });
 
 
+
+
     $(document).ready(function(){
         initCityData();
 
 
         $("#uploader .placeholder").css('background-image',"url('<?php echo $baseUrl ."/cdn/aui/image/image.png" ?>')")
+
+
+
     });
 
     var  dProvinceId="450000";
@@ -508,6 +513,8 @@ $baseUrl = \Yii::$app->request->baseUrl;
     var selDay = window.document.getElementById("selDay");
     // 新建一个DateSelector类的实例，将三个select对象传进去
     new DateSelector(selYear, selMonth, selDay, 1985, 1, 1);
+
+
 
 </script>
 

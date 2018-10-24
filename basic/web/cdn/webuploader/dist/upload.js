@@ -1,5 +1,7 @@
 (function ($) {
     // 当domReady的时候开始初始化
+
+
     $(function () {
         var $wrap = $('#uploader'),
 
@@ -205,7 +207,8 @@
         }
 
 
-        oss_policy_url = "/aliyun/oss/policy";
+        oss_policy_url = $("input[name='ossUrl']").val();
+
         $.ajax({
             url: oss_policy_url,
             type: "GET",
