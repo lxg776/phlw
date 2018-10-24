@@ -462,20 +462,23 @@ $baseUrl = \Yii::$app->request->baseUrl;
             return
         }
 
+        csrfToken = $('meta[name="csrf-token"]').attr("content");
         phoneNo =$("input[name='userName']").val();
-        data = "phoneNo="+phoneNo;
+
         $.ajax({
             type: "POST",
-            url: "/h5/gegSms",
-            data: data,
-            success: function(data){
-            if(data.code==1){
-                showTime(60);
-            }else{
-                msg(data.message);
-            }
+            url: "<?php echo $baseUrl."/index.php?r=web/get-sms" ?>",
+            data: {
+                "phoneNo":phoneNo,
+                _csrf:csrfToken
 
-        }
+            },
+            success: function(data){
+                msg(data.message);
+            },
+            error:function(XMLHttpRequest, textStatus, errorThrown){
+
+            }
         });
 
 

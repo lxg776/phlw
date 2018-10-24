@@ -44,7 +44,7 @@ class WebController extends Controller
                         'roles' => ['@'],
                     ],
                     [
-                        'actions' => ['login','do-login'],
+                        'actions' => ['login','do-login','get-sms'],
                         'allow' => true,
                         'roles' => ['?',"@"],
                     ]
@@ -118,22 +118,82 @@ class WebController extends Controller
 
 
 
+
+
+    /**
+     * 加密的
+     * @param $mAppid
+     * @param $mAppkey
+     * @param $mobile
+     * @param $code
+    */
+    public function getMd5Key($mAppid,$mAppkey,$mobile,$code){
+           return md5($mAppid.$mAppkey.$mobile.$code);
+    }
+
+
     /**
      * 获取验证码
      * @return
      */
-	public function actionGegSms($phone_no){
+	public function actionGetSms(){
 
-	    $serviceModle =new SmsModle();
-	    $code = CommonUtil::randomCheckCode(4);
-        $serviceModle->getSms($phone_no,"register","friends",$code);
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
 
-        return [
-            'message' =>"发送成功!",
-            'code' => 0,
-            'data'=>"",
-        ];
+        if(Yii::$app->request->isPost==1){
+
+            $phone_no=Yii::$app->request->post("phoneNo", "");
+            $serviceModle =new SmsModle();
+            $code = CommonUtil::randomCheckCode(4);
+            $serviceModle->getSms($phone_no,"register","friends",$code);
+
+            $appkey="lxg776";
+            $appid="5";
+            $sig="jxnet";
+
+            $key = $this->getMd5Key($appid,$appkey,$phone_no,$code);
+
+            $data = "item=app&a=setsmscode&sig=".$sig."&appid=".$appid."&key=".$key."&type=mobile&mobile=".$phone_no."&code=".$code;
+            $url = "http://user.xiweb.cn/run.php?".$data;
+
+
+
+
+            //调用发送
+            $result = json_decode(CommonUtil::CallAPI("GET",$url,false));
+
+            $resultCode = $result->code;
+
+             if($resultCode == 200){
+
+                 return [
+                     'message' =>"发送成功!",
+                     'code' => 1,
+                     'data'=>"",
+                 ];
+
+             }else{
+
+                 return [
+                     'message' =>"发送失败!",
+                     'code' => 0,
+                     'data'=>"",
+                 ];
+
+             }
+
+
+
+
+        }else{
+            return [
+                'message' =>"请post提交!",
+                'code' => 0,
+                'data'=>"",
+            ];
+        }
+
     }
 
 
