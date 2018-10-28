@@ -42,7 +42,9 @@ $baseUrl = \Yii::$app->request->baseUrl;
 
 <div class="aui-content aui-margin-b-15" style="margin-top: 1rem;">
 
-    <form method="post" action="/h5/reg" id="regForm">
+    <form method="post" action="<?php echo $baseUrl."/index.php?r=web/do-reg" ?>" id="regForm">
+
+        <input name="_csrf" type="hidden" id="_csrf" value="<?= Yii::$app->request->csrfToken ?>">
 
     <ul class="aui-list aui-form-list">
 
@@ -112,7 +114,7 @@ $baseUrl = \Yii::$app->request->baseUrl;
                 </div>
 
                 <div class="aui-list-item-input">
-                    <select style="font-size: 14px; width: 100px;" id="province">
+                    <select style="font-size: 14px; width: 100px;" id="province" name="fProvinceId">
 
                     </select>
                 </div>
@@ -320,11 +322,11 @@ $baseUrl = \Yii::$app->request->baseUrl;
     function tijiao() {
 
 
+        $sexValue = $('input:radio[name="sex"]:checked').val();
 
 
 
-
-        if ($("input[name='sex']").val() == "") {
+        if ($sexValue == ""||$sexValue == undefined) {
             msg("请填性别");
             $("input[name='sex']").focus();
             return
@@ -436,11 +438,20 @@ $baseUrl = \Yii::$app->request->baseUrl;
 
 
         $("input[name='birthDay']").val(brithDay);
+        csrfToken = $('meta[name="csrf-token"]').attr("content");
+
+
 
         $.ajax({
             type: "POST",
-            url: "${ctx}/h5/checkUserName",
-            data: "idCard="+idCard+"&userName="+userName+"&code="+code,
+            url: "<?php echo $baseUrl."/index.php?r=web/check-username" ?>",
+            data: {
+                "userName":userName,
+                _csrf:csrfToken,
+                'idCard':idCard,
+                'code':code,
+
+            },
             async:false,
             success: function(data){
             if(data.code==1){

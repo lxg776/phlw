@@ -16,6 +16,92 @@ class UserServiceModle extends Model
 
 
 
+
+
+    public function  saveBaseUserMsg($provinceId,$fromCityId,$fAreasId,$birthDay,$user_id,$operation){
+
+
+
+
+        $sql1 = "select province from f_provinces where provinceid = :provinceid";
+
+        $q1  = \Yii::$app->getDb()->createCommand($sql1,[':provinceid'=>$provinceId])->queryOne();
+
+        $province = $q1['province'];
+
+
+        $sql2 = "select city from f_cities  where cityid = :cityid";
+
+        $q2  = \Yii::$app->getDb()->createCommand($sql2,[':cityid'=>$fromCityId])->queryOne();
+
+        $city = $q2['city'];
+
+
+        $sql3 = "select area from f_areas where areaid = :areaid";
+
+        $q3  = \Yii::$app->getDb()->createCommand($sql3,[':areaid'=>$fAreasId])->queryOne();
+
+        $area = $q3['area'];
+
+
+
+        if($operation == "update"){
+
+            //更新基本资料
+            $updateFuserBaseMsg = FuserBaseMsg::findOne($user_id);
+            $updateFuserBaseMsg->birth_date = $birthDay;
+
+            $updateFuserBaseMsg->f_province = $province;
+            $updateFuserBaseMsg->f_province_id = $provinceId;
+
+            $updateFuserBaseMsg->from_city = $city;
+            $updateFuserBaseMsg->from_city_id = $fromCityId;
+
+            $updateFuserBaseMsg->from_area = $area;
+            $updateFuserBaseMsg->from_area_id = $fAreasId;
+
+            $updateFuserBaseMsg->update();
+
+
+        }else{
+
+            //更新基本资料
+            $updateFuserBaseMsg = new FuserBaseMsg();
+            $updateFuserBaseMsg->birth_date = $birthDay;
+            $updateFuserBaseMsg->user_id = $user_id;
+            $updateFuserBaseMsg->f_province = $province;
+            $updateFuserBaseMsg->f_province_id = $provinceId;
+
+            $updateFuserBaseMsg->from_city = $city;
+            $updateFuserBaseMsg->from_city_id = $fromCityId;
+
+            $updateFuserBaseMsg->from_area = $area;
+            $updateFuserBaseMsg->from_area_id = $fAreasId;
+
+            $updateFuserBaseMsg->save();
+        }
+
+        //			FCitiesExample fCitiesExample =new FCitiesExample();
+//			fCitiesExample.createCriteria().andCityidEqualTo(fromCityId+"");
+//			FCities cities = fCitiesService.selectFirstByExample(fCitiesExample);
+//
+//			if(cities!=null){
+//                fUserBaseMsg.setFromCity(cities.getCity());
+//                fUserBaseMsg.setFromCityId(Integer.parseInt(cities.getCityid()));
+//            }
+//
+//
+//			FAreasExample fAreasExample =new FAreasExample();
+//			fAreasExample.createCriteria().andAreaidEqualTo(fAreasId+"");
+//			FAreas fAreas = fAreasService.selectFirstByExample(fAreasExample);
+//			if(fAreas!=null){
+//                fUserBaseMsg.setFromArea(fAreas.getArea());
+//                fUserBaseMsg.setFromAreaId(Integer.parseInt(fAreas.getAreaid()));
+//            }
+
+    }
+
+
     public function sendMessage($userId,$friendId,$content){
 
 
@@ -26,25 +112,72 @@ class UserServiceModle extends Model
     }
 
 
+
+
+    public function saveUcenterUser($phone,$password,$sex,$remoteAddr,$operation,$userId){
+
+
+
+        if($operation == 'update'){
+            $updateSql = "update ucenter_user set user_name = :user_name, password = :password, sex = :sex, create_ip = :create_ip where user_id  =:user_id";
+            $updateQuery  = \Yii::$app->getDb()->createCommand($updateSql,[':user_name'=>$phone,':password'=>$password,':sex'=>$sex,':create_ip'=>$remoteAddr,':user_id'=>$userId ])->execute();
+        }else{
+            $insertSql = "insert into ucenter_user(user_name,password,sex,salt,create_ip)values(:user_name,:password,:sex,'friend',:create_ip)";
+            $insertQuery  = \Yii::$app->getDb()->createCommand($insertSql,[':user_name'=>$phone,':password'=>$password,':sex'=>$sex,':create_ip'=>$remoteAddr ])->execute();
+        }
+
+
+
+    }
+
+
+    public function saveIdcard($phone,$real_name,$idcard_no,$idcard_imgs,$operation,$userId){
+
+
+
+        if($operation == 'update'){
+            $updateSql = "update ucenter_identificaion set cellphone = :cellphone, idcard_no = :idcard_no, idcard_imgs = :idcard_imgs, real_name = :real_name where user_id  = :user_id";
+            $updateQuery  = \Yii::$app->getDb()->createCommand($updateSql,[':cellphone'=>$phone,':real_name'=>$real_name,':idcard_no'=>$idcard_no,':idcard_imgs'=>$idcard_imgs,':user_id'=>$userId ])->execute();
+        }else{
+            $insertSql = "insert into ucenter_identificaion(user_id,real_name,idcard_type,idcard_no,idcard_imgs,cellphone)values(:user_id,:real_name,'idcard',:idcard_no,:idcard_imgs,:cellphone)";
+            $insertQuery  = \Yii::$app->getDb()->createCommand($insertSql,[':cellphone'=>$phone,':real_name'=>$real_name,':idcard_no'=>$idcard_no,':idcard_imgs'=>$idcard_imgs,':user_id'=>$userId ])->execute();
+        }
+
+
+
+    }
+
+
+    public function saveUserBaseMsg($birthDay,$operation,$userId){
+
+
+
+        if($operation == 'update'){
+            $updateSql = "update ucenter_identificaion set cellphone = :cellphone, idcard_no = :idcard_no, idcard_imgs = :idcard_imgs, real_name = :real_name where user_id  =:user_id";
+            $insertQuery  = \Yii::$app->getDb()->createCommand($updateSql,[':cellphone'=>$phone,':real_name'=>$real_name,':idcard_no'=>$idcard_no,':idcard_imgs'=>$idcard_imgs,':userId'=>$userId ])->execute();
+        }else{
+            $insertSql = "insert into ucenter_identificaion(user_id,real_name,idcard_type,idcard_no,idcard_imgs,cellphone)values(:user_id,:real_name,'idcard',:idcard_no,:idcard_imgs,:cellphone)";
+            $insertQuery  = \Yii::$app->getDb()->createCommand($insertSql,[':cellphone'=>$phone,':real_name'=>$real_name,':idcard_no'=>$idcard_no,':idcard_imgs'=>$idcard_imgs,':userId'=>$userId ])->execute();
+        }
+
+
+
+    }
+
+
     /**
      * 手机是否存在
      * @param $phone
      * @return bool
      * @throws \yii\db\Exception
      */
-    public function  isExistPhone($phone){
+    public function  getUserIdByPhone($phone){
 
-        $sql = "select COUNT(1) as total from ucenter_user where user_name = :user_name";
+        $sql = "select user_id  from ucenter_user where user_name = :user_name";
 
         $query  = \Yii::$app->getDb()->createCommand($sql,[':user_name'=>$phone])->queryOne();
 
-        if($query[0]['total']>0){
-            return true;
-        }else{
-            return false;
-        }
-
-
+        return $query['user_id'];
     }
 
     /**
@@ -53,17 +186,13 @@ class UserServiceModle extends Model
      * @return bool
      * @throws \yii\db\Exception
      */
-    public function  isExistIdentificaion($idcard_no){
+    public function  getUserIdByIdcardNo ($idcard_no){
 
-        $sql = "select COUNT(1) as total from ucenter_identificaion where idcard_no = :idcard_no";
+        $sql = "select user_id from ucenter_identificaion where idcard_no = :idcard_no";
 
         $query  = \Yii::$app->getDb()->createCommand($sql,[':idcard_no'=>$idcard_no])->queryOne();
 
-        if($query[0]['total']>0){
-            return true;
-        }else{
-            return false;
-        }
+        return $query['user_id'];
 
     }
 
