@@ -136,4 +136,33 @@ class CommonUtil
     }
 
 
+    public static function getAgeRang($age_min,$age_max){
+        if('不限' == $age_min&&'不限' == $age_max){
+            return '不限';
+        }else if('不限' == $age_min ){
+            return $age_max."以下";
+        }else if('不限' == $age_max){
+            return $age_min."以上";
+        }else{
+            return $age_min."~".$age_max;
+        }
+
+    }
+
+
+    public static function getHeiRang($height_min,$height_max){
+        if(('不限' == $height_min || empty($height_min)) &&('不限' == $height_max || empty($height_max))){
+            return '不限';
+        }else if('不限' == $height_min || empty($height_min)){
+            return $height_max."以下";
+        }else if('不限' == $height_max || empty($height_max)){
+            return $height_min."以上";
+        }else{
+            return $height_min."~".$height_max;
+        }
+
+    }
+
+
+
 }

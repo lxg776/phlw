@@ -76,7 +76,7 @@
                 <div class="aui-list-item-inner">
                     <div class="aui-list-item-text">
                         <div class="aui-list-item-title">个人资料</div>
-                        <div class="aui-list-item-right"><a href="${ctx}/u/editGrzl" style="font-size: 0.7rem;">编辑</a></div>
+                        <div class="aui-list-item-right"><a href="<?php echo $baseUrl."/index.php?r=web/edit-grzl" ?>" style="font-size: 0.7rem;">编辑</a></div>
                     </div>
                     <div class="aui-list-item-text">
                         <div class="aui-list-item-left">昵称</div>

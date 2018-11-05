@@ -198,6 +198,8 @@ $(function () {
 
     //获取签名数据并上传图片
 
+    oss_policy_url = $("input[name='ossUrl']").val();
+
     $.ajax({
         url: oss_policy_url,
         type: "GET",

@@ -4,6 +4,8 @@ namespace app\controllers;
 
 
 use app\models\FuserBaseMsg;
+use app\models\FuserLivingSatus;
+use app\models\FuserRequest;
 use app\models\FuserSetting;
 use app\util\CommonUtil;
 use Yii;
@@ -57,6 +59,9 @@ class WebController extends Controller
             ],
         ];
     }
+
+
+
 
 
 
@@ -150,13 +155,9 @@ class WebController extends Controller
                 $loginForm->login();
 
                 $nickName = CommonUtil::str_rand(6);
-
                 $serviceModle->saveIdcard($userName,$realName,$idCard,$idCardImgs,'insert',Yii::$app->user->id);
-
                 $serviceModle->saveBaseUserMsg($fProvinceId,$fromCityId,$fAreasId,$birthDay,Yii::$app->user->id,'insert');
-
                 $userSetting = new FuserSetting();
-
                 $userSetting->user_id = Yii::$app->user->id;
                 $userSetting->show_index_page = 0;
                 $userSetting->show_base_msg = 0;
@@ -181,10 +182,456 @@ class WebController extends Controller
             }
 
 
-            $this->render("edit_grzl");
+
 
         }
 
+
+    }
+
+
+    /**
+     * 编辑个人信息
+     */
+    public function actionEditGrzl($from="1"){
+
+
+        $serviceModle = new UserServiceModle();
+
+        $user = \Yii::$app->user->identity;
+
+        $modle = $serviceModle->getGrzlByUserId($user->id);
+
+
+        //个人相册
+        $userImages = $serviceModle->selectUserImageListById($user->id,'photo');
+
+        $data =  ['modle'=>$modle,'user'=>$user,'userImages'=>$userImages,'imageBase'=>$this->imageBase,'from'=>$from];
+
+
+        return  $this->render("edit_grzl",$data);
+
+
+    }
+
+    /**
+     * 编辑择偶要求
+     */
+    public function actionEditZobz($from="1"){
+
+
+        $serviceModle = new UserServiceModle();
+
+
+        $user = \Yii::$app->user->identity;
+
+        $modle = $serviceModle->getZobzByUserId($user->id);
+
+
+
+        if($modle){
+            $height = $modle['height'];
+            $height_min = "";
+            $height_max = "";
+
+            if($height){
+                $heightArray = explode('~',$height);
+                if(sizeof($heightArray)==2){
+                        $height_min = $heightArray[0];
+                        $height_max = $heightArray[1];
+
+                }else if(sizeof($heightArray)==1){
+                    if(strpos($heightArray[0],"以上")!=false){
+                        $height_min = substr($heightArray[0],0,strrpos($heightArray[0],"以上"));
+                    }else if(strpos($heightArray[0],"以下")!=false){
+                        $height_max = substr($heightArray[0],0,strrpos($heightArray[0],"以下"));
+                    }
+                }
+            }
+
+            $age = $modle['age'];
+
+            if($age){
+                $ageArray = explode('~',$age);
+
+                if(sizeof($ageArray)==2){
+                    $age_min = $ageArray[0];
+                    $age_max = $ageArray[1];
+                }else if(sizeof($ageArray)==1){
+                    if(strpos($ageArray[0],"以上")!=false){
+                        $age_min = substr($ageArray[0],0,strrpos($ageArray[0],"以上"));
+                        $age_max = "不限";
+                    }else if(strpos($heightArray[0],"以下")!=false){
+                        $age_max = substr($ageArray[0],0,strrpos($ageArray[0],"以下"));
+                        $age_min = "不限";
+                    }
+                }
+
+
+            }
+            $data =  ['modle'=>$modle,'from'=>$from,'height_min'=>$height_min,'height_max'=>$height_max,'age_min'=>$age_min,'age_max'=>$age_max];
+        }
+
+
+        return $this->render("edit_zobz",$data);
+
+    }
+
+
+
+    /**
+     *  提交择偶要求
+     */
+    public function actionDoEditZobz($from="1"){
+
+        $user = \Yii::$app->user->identity;
+        $userId = $user->id;
+
+        if (Yii::$app->request->isPost == 1) {
+
+           $modle = FuserRequest::findOne($userId);
+
+           if(!$modle){
+               $operation = 'insert';
+               $modle->user_id = $userId;
+           }else{
+               $operation = 'update';
+           }
+
+           $sex = Yii::$app->request->post("sex", "");
+
+           $fromProvinceId = Yii::$app->request->post("fromProvinceId", "");
+
+           $fromCityId = Yii::$app->request->post("fromCityId", "");
+
+           $fromAreaId = Yii::$app->request->post("fromAreaId", "");
+
+           $age_min = Yii::$app->request->post("age_min", "");
+
+           $age_max = Yii::$app->request->post("age_max", "");
+
+           $height_min = Yii::$app->request->post("height_min", "");
+
+           $height_max = Yii::$app->request->post("height_max", "");
+
+           $maritalStatus  = Yii::$app->request->post("maritalStatus", "");
+
+           $shape  = Yii::$app->request->post("shape", "");
+
+           $education  = Yii::$app->request->post("education", "");
+
+           $incomeMonthly  = Yii::$app->request->post("incomeMonthly", "");
+
+
+           $job  = Yii::$app->request->post("job", "");
+
+           $childStatus  = Yii::$app->request->post("childStatus", "");
+
+           $livingStatus  = Yii::$app->request->post("livingStatus", "");
+
+           $houseStatus  = Yii::$app->request->post("houseStatus", "");
+
+           $carStatus  = Yii::$app->request->post("carStatus", "");
+
+           $drinkStatus  = Yii::$app->request->post("drinkStatus", "");
+
+           $smokeStatus  = Yii::$app->request->post("smokeStatus", "");
+
+
+
+
+            //位置
+            $sql1 = "select province from f_provinces where provinceid = :provinceid";
+
+            $q1  = \Yii::$app->getDb()->createCommand($sql1,[':provinceid'=>$fromProvinceId])->queryOne();
+
+            $province = $q1['province'];
+
+
+            $sql2 = "select city from f_cities  where cityid = :cityid";
+
+            $q2  = \Yii::$app->getDb()->createCommand($sql2,[':cityid'=>$fromCityId])->queryOne();
+
+            $city = $q2['city'];
+
+
+            $sql3 = "select area from f_areas where areaid = :areaid";
+
+            $q3  = \Yii::$app->getDb()->createCommand($sql3,[':areaid'=>$fromAreaId])->queryOne();
+
+            $area = $q3['area'];
+
+            //省份
+            $modle->from_province = $province;
+            $modle->from_province_id = $fromProvinceId;
+            //城市
+            $modle->from_city = $city;
+            $modle->from_city_id = $fromCityId;
+
+            //区县
+            $modle->from_area = $fromAreaId;
+            $modle->from_area_id = $area;
+
+            //性别
+            $modle->sex= $sex;
+
+            $modle->age = CommonUtil::getAgeRang($age_min,$age_max);
+            $modle->height = CommonUtil::getHeiRang($height_min,$height_max);
+
+            $modle->marital_status =$maritalStatus;
+
+            $modle->shape = $shape;
+
+            $modle->education = $education;
+
+            $modle->income_monthly = $incomeMonthly;
+
+            $modle->job = $job;
+
+            $modle->child_status = $childStatus;
+
+            $modle->living_status = $livingStatus;
+
+            $modle->house_status = $houseStatus;
+
+            $modle->car_status = $carStatus;
+
+            $modle->drink_status = $drinkStatus;
+
+            $modle->smoke_status = $smokeStatus;
+
+            if($operation == 'insert'){
+                $modle->save();
+            }else{
+                $modle->update();
+            }
+
+
+            if($from == 1){
+                //跳转首页
+                $this->redirect(array('/web/index','pageNum'=>1));
+
+
+            }else{
+                //跳转编辑整合需求
+                $this->redirect(array('/web/edit-shzk','from'=>1));
+
+            }
+
+        }
+
+
+
+
+    }
+
+    /**
+     * 编辑个人信息
+     */
+    public function actionEditShzk($from){
+
+
+        $from =】''
+
+        $user = \Yii::$app->user->identity;
+        $userId = $user->id;
+
+        $serviceModle  =  new UserServiceModle();
+
+        $modle = $serviceModle->getShztByUserId($userId);
+
+       // getShztByUserId
+
+        $data = ['modle'=>$modle];
+
+        return $this->render('edit_shzk',$data),;
+    }
+
+
+    /**
+     * 修改生活状态
+     * @return
+     */
+    public function actionDoEditShzk(){
+
+
+        $user = \Yii::$app->user->identity;
+        $userId = $user->i
+
+]]
+
+
+        if (Yii::$app->request->isPost == 1) {
+
+            $modle = FuserLivingSatus::findOne($userId);
+            if($modle){
+                $operation = "update";
+            }elsE{
+                $operation = "insert";
+                $modle = new FuserLivingSatus();
+                $modle->user_id = $userId;
+
+                $from->
+            }
+
+
+
+
+
+
+
+            $smokingStatus = Yii::$app->request->post("smokingStatus", "");
+
+
+            $drinkingStatus = Yii::$app->request->post("drinkingStatus", "");
+
+            $cooking = Yii::$app->request->post("cooking", "");
+
+            $liveWithParents = Yii::$app->request->post("liveWithParents", "");
+
+            $favoriteDates = Yii::$app->request->post("favoriteDate", "");
+
+            $from  = Yii::$app->request->post("from", "");
+
+            $modle->smoking_status = $smokingStatus;
+
+            $modle->drinking_status = $drinkingStatus;
+
+            $modle->cooking = $cooking;
+
+            $modle->live_with_parents = $liveWithParents;
+
+            $modle->favorite_dates = $favoriteDates;
+
+            if($operation == 'update'){
+                $modle->update();
+            }elsE{
+                $modle->save();
+            }
+
+
+            if($from == 1){
+                //跳转首页
+                $this->redirect(array('/web/index','pageNum'=>1));
+
+
+            }else{
+                //跳转编辑整合需求
+                $this->redirect(array('/web/edit-shzk','from'=>1));
+
+            }
+
+
+
+        }
+
+
+
+
+
+    }
+
+
+
+
+
+
+
+    /**
+     * 编辑个人信息
+     */
+    public function actionDoEditGrzl(){
+
+
+
+
+        $user = \Yii::$app->user->identity;
+        $userId = $user->id;
+
+        $serviceModle  =  new UserServiceModle();
+
+
+
+
+        if (Yii::$app->request->isPost == 1) {
+
+            $deletePhoto = Yii::$app->request->post("deletePhoto", "");
+            $pathes = explode(',',$deletePhoto);
+
+            //删除相册
+            if($pathes&&$deletePhoto != ""){
+                $length = sizeof($pathes);
+                for ($i=0; $i<$length; $i++) {
+                        $itemString = $pathes[$i];
+                        $serviceModle->deletePhoto($userId,$itemString,"photo");
+                }
+            }
+
+            $addPhoto = Yii::$app->request->post("addPhoto", "");
+            //添加相册
+            $addPathes = explode(',',$addPhoto);
+            if($addPathes&&$addPhoto != ""){
+                $addLength = sizeof($addPathes);
+                for ($ai=0; $ai<$addLength; $ai++) {
+                    $addItemString = $addPathes[$ai];
+                    $serviceModle->addPhoto($userId,$addItemString,"photo");
+                }
+            }
+            $nikename = Yii::$app->request->post("nikename", "");
+            //头像
+            $avatar = Yii::$app->request->post("avatar", "");
+            //身高
+            $height = Yii::$app->request->post("height", "");
+            //体型
+            $shape =  Yii::$app->request->post("shape", "");
+            //婚姻状态
+            $maritalStatus =  Yii::$app->request->post("maritalStatus", "");
+            //职业
+            $profession =  Yii::$app->request->post("profession", "");
+            //单位性质
+            $unitProperty =  Yii::$app->request->post("unitProperty", "");
+            //教育
+            $education = Yii::$app->request->post("education", "");
+            //月收入
+            $monthIncome =  Yii::$app->request->post("monthIncome", "");
+
+            $childrenStatus =  Yii::$app->request->post("childrenStatus", "");
+
+            $from =  Yii::$app->request->post("from", "");
+
+
+            //基本资料
+            $fuserBaseMsg =FuserBaseMsg::findOne($userId);
+            $fuserBaseMsg->nikename = $nikename;
+            $fuserBaseMsg->height = $height;
+            if($avatar!=""){
+                $fuserBaseMsg->avatar = $avatar;
+            }
+            $fuserBaseMsg->shape = $shape;
+            $fuserBaseMsg->marital_status = $maritalStatus;
+            $fuserBaseMsg->profession = $profession;
+            $fuserBaseMsg->unit_property = $unitProperty;
+            $fuserBaseMsg->education = $education;
+            $fuserBaseMsg->month_income = $monthIncome;
+            $fuserBaseMsg->children_status = $childrenStatus;
+
+            $fuserBaseMsg->update();
+
+
+            if($from == 1){
+                //跳转首页
+                $this->redirect(array('/web/index','pageNum'=>1));
+
+
+            }else{
+                //跳转编辑整合需求
+                $this->redirect(array('/web/edit-zobz','from'=>1));
+
+            }
+
+
+
+        }
 
     }
 
@@ -197,111 +644,6 @@ class WebController extends Controller
 
 
 
-//        UcenterUser ucenterUser =null;
-//
-//		if(null!=SecurityUtils.getSubject().getPrincipal()){
-//            String  username = (String)SecurityUtils.getSubject().getPrincipal();
-//			ucenterUser= getUctenuser(username,session);
-//		}
-//
-//
-//
-//
-//
-//		String remoteAddr="";
-//
-//		if (request != null) {
-//            remoteAddr = request.getHeader("X-FORWARDED-FOR");
-//            if (remoteAddr == null || "".equals(remoteAddr)) {
-//                remoteAddr = request.getRemoteAddr();
-//            }
-//        }
-//
-//		UcenterUser modle =new UcenterUser();
-//		modle.setSalt("friend");
-//
-//		String md5Password =  MD5Util.MD5(modle.getSalt()+password);
-//		modle.setPassword(md5Password);
-//		modle.setUserName(userName);
-//		modle.setCreateIp(remoteAddr);
-//		modle.setSex(sex);
-//
-//		if(null!=ucenterUser){
-//            ucenterUser=ucenterUserService.selectByPrimaryKey(ucenterUser.getUserId());
-//            if(null!=ucenterUser){
-//                modle.setUserId(ucenterUser.getUserId());
-//                ucenterUserService.updateByPrimaryKey(modle);
-//            }else{
-//                SecurityUtils.getSubject().logout();
-//                ucenterUserService.insert(modle);
-//            }
-//
-//        }else{
-//            ucenterUserService.insert(modle);
-//        }
-//		UcenterUserExample example = new UcenterUserExample();
-//		example.createCriteria().andUserNameEqualTo(userName);
-//		modle=ucenterUserService.selectFirstByExample(example);
-//
-//
-//
-//		String upms_code="";
-//		//登录
-//		if(ucenterUser==null){
-//            upms_code = login(userName);
-//        }
-//
-//
-//		UcenterIdentificaion ucenterIdentificaion = new UcenterIdentificaion();
-//		ucenterIdentificaion.setUserId(modle.getUserId());
-//		ucenterIdentificaion.setCellphone(userName);
-//		ucenterIdentificaion.setIdcardImgs(idCardImgs);
-//		ucenterIdentificaion.setIdcardNo(idCard);
-//		ucenterIdentificaion.setRealName(realName);
-//
-//		if(null!=ucenterUser){
-//            ucenterIdentificaionService.updateByPrimaryKey(ucenterIdentificaion);
-//            return "redirect:/u/txGrzl";
-//        }else{
-//            ucenterIdentificaionService.insert(ucenterIdentificaion);
-//            //随机一个昵称
-//            FUserBaseMsg fUserBaseMsg = new FUserBaseMsg();
-//			fUserBaseMsg.setNikename(SmsUtil.randomCheckCode(7));
-//			fUserBaseMsg.setUserId(modle.getUserId());
-//			fUserBaseMsg.setBirthDate(birthDay);
-//
-//			FCitiesExample fCitiesExample =new FCitiesExample();
-//			fCitiesExample.createCriteria().andCityidEqualTo(fromCityId+"");
-//			FCities cities = fCitiesService.selectFirstByExample(fCitiesExample);
-//
-//			if(cities!=null){
-//                fUserBaseMsg.setFromCity(cities.getCity());
-//                fUserBaseMsg.setFromCityId(Integer.parseInt(cities.getCityid()));
-//            }
-//
-//
-//			FAreasExample fAreasExample =new FAreasExample();
-//			fAreasExample.createCriteria().andAreaidEqualTo(fAreasId+"");
-//			FAreas fAreas = fAreasService.selectFirstByExample(fAreasExample);
-//			if(fAreas!=null){
-//                fUserBaseMsg.setFromArea(fAreas.getArea());
-//                fUserBaseMsg.setFromAreaId(Integer.parseInt(fAreas.getAreaid()));
-//            }
-//
-//			//设置显示选项
-//			FUserSetting fUserSetting =new FUserSetting();
-//			fUserSetting.setUserId(modle.getUserId());
-//			fUserSetting.setShowIndexPage((byte)0);
-//			fUserSetting.setShowBaseMsg((byte)0);
-//			fUserSetting.setShowFavorite((byte)0);
-//			fUserSetting.setShowFriendRequest((byte)0);
-//			fUserSetting.setShowLivingStatus((byte)0);
-//			fUserSetting.setMsgReadStatus((byte)0);
-//			fUserSetting.setMsgSendStatus((byte)0);
-//			fUserSetting.setHistoryviewStatus((byte)1);
-//			fUserSetting.setIdcardStatus((byte)1);
-//			fUserBaseMsgService.insert(fUserBaseMsg);
-//			fUserSettingService.insert(fUserSetting);
 
 
 

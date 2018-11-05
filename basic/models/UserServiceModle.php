@@ -16,6 +16,75 @@ class UserServiceModle extends Model
 
 
 
+    /**
+     * 获取生活状态
+     * @param $userId
+     * @throws \yii\db\Exception
+     */
+    public function  getShztByUserId($userId){
+
+        $sql = "select * from f_user_living_status where user_id = :user_id";
+
+        $query  = \Yii::$app->getDb()->createCommand($sql,[':user_id'=>$userId])->queryOne();
+
+        return $query;
+
+    }
+
+
+
+    /**
+     * 获取个人资料
+     * @param $userId
+     * @throws \yii\db\Exception
+     */
+    public function  getZobzByUserId($userId){
+
+        $sql = "select * from f_user_request where user_id = :user_id";
+
+        $query  = \Yii::$app->getDb()->createCommand($sql,[':user_id'=>$userId])->queryOne();
+
+        return $query;
+
+    }
+
+
+
+    /**
+     * 获取个人资料
+     * @param $userId
+     * @throws \yii\db\Exception
+     */
+    public function  getGrzlByUserId($userId){
+
+        $sql = "select * from f_user_base_msg where user_id = :user_id";
+
+        $query  = \Yii::$app->getDb()->createCommand($sql,[':user_id'=>$userId])->queryOne();
+
+        return $query;
+
+    }
+
+
+    public function  deletePhoto($userId,$imagePath,$keyWord){
+
+        $sql = "delete from f_user_images where user_id = :user_id and image_path = :image_path and keyword = :keyword";
+
+        return   \Yii::$app->getDb()->createCommand($sql,[':user_id'=>$userId,':keyword'=>$keyWord,':image_path'=>$imagePath])->execute();
+
+    }
+
+
+    public function  addPhoto($userId,$imagePath,$keyWord){
+
+        $sql = "insert INTO f_user_images(user_id,image_path,keyword)values(:user_id,:image_path,:keyword)";
+
+        return   \Yii::$app->getDb()->createCommand($sql,[':user_id'=>$userId,':keyword'=>$keyWord,':image_path'=>$imagePath])->execute();
+
+    }
+
+
+
 
 
     public function  saveBaseUserMsg($provinceId,$fromCityId,$fAreasId,$birthDay,$user_id,$operation){
@@ -100,6 +169,94 @@ class UserServiceModle extends Model
 //            }
 
     }
+
+
+
+    public function  saveRequest($provinceId,$fromCityId,$fAreasId,$birthDay,$user_id,$operation){
+
+
+
+
+        $sql1 = "select province from f_provinces where provinceid = :provinceid";
+
+        $q1  = \Yii::$app->getDb()->createCommand($sql1,[':provinceid'=>$provinceId])->queryOne();
+
+        $province = $q1['province'];
+
+
+        $sql2 = "select city from f_cities  where cityid = :cityid";
+
+        $q2  = \Yii::$app->getDb()->createCommand($sql2,[':cityid'=>$fromCityId])->queryOne();
+
+        $city = $q2['city'];
+
+
+        $sql3 = "select area from f_areas where areaid = :areaid";
+
+        $q3  = \Yii::$app->getDb()->createCommand($sql3,[':areaid'=>$fAreasId])->queryOne();
+
+        $area = $q3['area'];
+
+
+
+        if($operation == "update"){
+
+            //更新基本资料
+            $updateFuserBaseMsg = FuserBaseMsg::findOne($user_id);
+            $updateFuserBaseMsg->birth_date = $birthDay;
+
+            $updateFuserBaseMsg->f_province = $province;
+            $updateFuserBaseMsg->f_province_id = $provinceId;
+
+            $updateFuserBaseMsg->from_city = $city;
+            $updateFuserBaseMsg->from_city_id = $fromCityId;
+
+            $updateFuserBaseMsg->from_area = $area;
+            $updateFuserBaseMsg->from_area_id = $fAreasId;
+
+            $updateFuserBaseMsg->update();
+
+
+        }else{
+
+            //更新基本资料
+            $updateFuserBaseMsg = new FuserBaseMsg();
+            $updateFuserBaseMsg->birth_date = $birthDay;
+            $updateFuserBaseMsg->user_id = $user_id;
+            $updateFuserBaseMsg->f_province = $province;
+            $updateFuserBaseMsg->f_province_id = $provinceId;
+
+            $updateFuserBaseMsg->from_city = $city;
+            $updateFuserBaseMsg->from_city_id = $fromCityId;
+
+            $updateFuserBaseMsg->from_area = $area;
+            $updateFuserBaseMsg->from_area_id = $fAreasId;
+
+            $updateFuserBaseMsg->save();
+        }
+
+        //			FCitiesExample fCitiesExample =new FCitiesExample();
+//			fCitiesExample.createCriteria().andCityidEqualTo(fromCityId+"");
+//			FCities cities = fCitiesService.selectFirstByExample(fCitiesExample);
+//
+//			if(cities!=null){
+//                fUserBaseMsg.setFromCity(cities.getCity());
+//                fUserBaseMsg.setFromCityId(Integer.parseInt(cities.getCityid()));
+//            }
+//
+//
+//			FAreasExample fAreasExample =new FAreasExample();
+//			fAreasExample.createCriteria().andAreaidEqualTo(fAreasId+"");
+//			FAreas fAreas = fAreasService.selectFirstByExample(fAreasExample);
+//			if(fAreas!=null){
+//                fUserBaseMsg.setFromArea(fAreas.getArea());
+//                fUserBaseMsg.setFromAreaId(Integer.parseInt(fAreas.getAreaid()));
+//            }
+
+    }
+
+
+
 
 
     public function sendMessage($userId,$friendId,$content){

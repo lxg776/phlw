@@ -154,7 +154,7 @@ $(function () {
         var  base64 = result.toDataURL(uploadedImageType);
         var uploadFile = convertBase64UrlToBlob(base64);
 
-        var oss_policy_url = "/aliyun/oss/policy";
+        var oss_policy_url = $("input[name='ossUrl']").val();
         $.ajax({
             url: oss_policy_url,
             type: "GET",
