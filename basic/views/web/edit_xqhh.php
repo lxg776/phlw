@@ -25,7 +25,12 @@ $baseUrl = \Yii::$app->request->baseUrl;
 
 <div class="aui-content aui-margin-b-15" style="margin-top: 2.5rem;">
 
-    <form id="regForm" action="${ctx}/u/editShzk" method="post">
+    <form id="regForm" action="<?php echo $baseUrl."/index.php?r=web/do-edit-xqhh" ?>" method="post">
+
+        <input name="_csrf" type="hidden" id="_csrf" value="<?= Yii::$app->request->csrfToken ?>">
+
+        <input name="from" type="hidden" id="from" value="<?php echo $from ?>">
+
         <ul class="aui-list aui-form-list">
 
             <li class="aui-list-item">
@@ -34,7 +39,7 @@ $baseUrl = \Yii::$app->request->baseUrl;
                         喜欢的音乐
                     </div>
                     <div class="aui-list-item-input">
-                        <input type="text" placeholder="填写"  name="favoriteMusic" value="${modle.favoriteMusic}" >
+                        <input type="text" placeholder="填写"  name="favoriteMusic" value="<?php echo $modle['favorite_music'] ?>" >
                     </div>
 
 
@@ -48,7 +53,7 @@ $baseUrl = \Yii::$app->request->baseUrl;
                         喜欢的电影
                     </div>
                     <div class="aui-list-item-input">
-                        <input type="text" placeholder="填写"  name="favoriteFilm" value="${modle.favoriteFilm}" >
+                        <input type="text" placeholder="填写"  name="favoriteFilm" value="<?php echo $modle['favorite_film'] ?>" >
                     </div>
 
 
@@ -61,7 +66,7 @@ $baseUrl = \Yii::$app->request->baseUrl;
                         喜欢的运动
                     </div>
                     <div class="aui-list-item-input">
-                        <input type="text" placeholder="填写"  name="favoriteSports" value="${modle.favoriteSports}" >
+                        <input type="text" placeholder="填写"  name="favoriteSports" value="<?php echo $modle['favorite_sports'] ?>" >
                     </div>
 
 
@@ -75,7 +80,7 @@ $baseUrl = \Yii::$app->request->baseUrl;
                         喜欢的宠物
                     </div>
                     <div class="aui-list-item-input">
-                        <input type="text" placeholder="填写"  name="favoritePet" value="${modle.favoritePet}" >
+                        <input type="text" placeholder="填写"  name="favoritePet" value="<?php echo $modle['favorite_pet'] ?>" >
                     </div>
 
 

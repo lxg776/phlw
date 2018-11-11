@@ -173,7 +173,8 @@ $(function () {
     function editPhoto(imgPath,keyWord) {
         //获取签名数据并上传图片
 
-        data = "imgPath="+imgPath+"&keyWord="+keyWord;
+        csrfToken = $('meta[name="csrf-token"]').attr("content");
+        data = "imgPath="+imgPath+"&keyWord="+keyWord+"&_csrf="+csrfToken;
         $.ajax({
             url: editPhotoUrl,
             type: "POST",

@@ -12,13 +12,13 @@
 
                     <?php } else{
 
-                        if($item['sex']==1){
+                        if($modle['sex']==1){
                             ?>
                             <img src="<?php echo $baseUrl ?>/cdn/image/default_man_icon.png" >
 
 
                             <?php
-                        } else if($item['sex']==2){
+                        } else if($modle['sex']==2){
                             ?>
                             <img src="<?php echo $baseUrl ?>/cdn/image/default_woman_icon.png" >
                             <?php
@@ -49,7 +49,7 @@
         <div class="aui-card-list">
             <div class="aui-card-list-header">
                 相册
-                <div class="aui-list-item-right"><a href="${ctx}/u/editPhoto" style="font-size: 0.7rem;">编辑</a></div>
+                <div class="aui-list-item-right"><a href="<?php echo $baseUrl."/index.php?r=web/edit-photo" ?>" style="font-size: 0.7rem;">编辑</a></div>
             </div>
             <div class="aui-card-list-content-padded aui-border-b aui-border-t">
                 <div class="aui-row aui-row-padded">
@@ -124,7 +124,7 @@
                 <div class="aui-list-item-inner">
                     <div class="aui-list-item-text">
                         <div class="aui-list-item-title">择偶条件</div>
-                        <div class="aui-list-item-right"><a href="${ctx}/u/editZobz" style="font-size: 0.7rem;">编辑</a></div>
+                        <div class="aui-list-item-right"><a href="<?php echo $baseUrl."/index.php?r=web/edit-zobz" ?>" style="font-size: 0.7rem;">编辑</a></div>
                     </div>
                     <div class="aui-list-item-text">
                         <div class="aui-list-item-left">年龄</div>
@@ -186,7 +186,7 @@
                 <div class="aui-list-item-inner">
                     <div class="aui-list-item-text">
                         <div class="aui-list-item-title">生活状态</div>
-                        <div class="aui-list-item-right"><a href="${ctx}/u/editShzk" style="font-size: 0.7rem;">编辑</a></div>
+                        <div class="aui-list-item-right"><a href="<?php echo $baseUrl."/index.php?r=web/edit-shzk" ?>" style="font-size: 0.7rem;">编辑</a></div>
                     </div>
                     <div class="aui-list-item-text">
                         <div class="aui-list-item-left">抽烟状况</div>
@@ -269,7 +269,7 @@
                 <div class="aui-list-item-inner">
                     <div class="aui-list-item-text">
                         <div class="aui-list-item-title">兴趣爱好</div>
-                        <div class="aui-list-item-right"><a href="${ctx}/u/editXqhh" style="font-size: 0.7rem;">编辑</a></div>
+                        <div class="aui-list-item-right"><a href="<?php echo $baseUrl."/index.php?r=web/edit-xqhh" ?>" style="font-size: 0.7rem;">编辑</a></div>
                     </div>
                     <div class="aui-list-item-text">
                         <div class="aui-list-item-left">喜欢的音乐</div>

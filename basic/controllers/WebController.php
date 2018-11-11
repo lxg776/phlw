@@ -170,22 +170,53 @@ class WebController extends Controller
                 $userSetting->idcard_status = 1;
                 $userSetting->save();
 
+
+                //生活状态
+                $fuserLivingSatus = new  FuserLivingSatus();
+                $fuserLivingSatus->user_id = Yii::$app->user->id;;
+                $fuserLivingSatus->save();
+
+
+                //择偶标准
+                $fuserRequest = new  FuserRequest();
+                $fuserRequest->user_id = Yii::$app->user->id;
+                $fuserRequest->save();
+
             } else {
 
                 $userId = Yii::$app->user->id;
                 $serviceModle->saveUcenterUser($userName, $mPassword, $sex, $remoteAddr, 'update', $userId);
                 $serviceModle->saveIdcard($userName,$realName,$idCard,$idCardImgs,'update',Yii::$app->user->id);
-
-
                 $serviceModle->saveBaseUserMsg($fProvinceId,$fromCityId,$fAreasId,$birthDay,$userId,'update');
 
             }
+
+
+            $this->redirect(array('/web/edit-grzl','from'=>'2'));
 
 
 
 
         }
 
+
+    }
+
+    /**
+     * 活动详情
+     * @param int $activityId
+     * @return string
+     */
+    public function actionActivityDetail($activityId=0){
+
+
+
+        $serviceModle = new UserServiceModle();
+        $modle = $serviceModle->selectActivityDetail($activityId);
+        $data =  ['modle'=>$modle, 'imageBase'=>$this->imageBase];
+
+
+        return  $this->render("activity_detail",$data);
 
     }
 
@@ -214,6 +245,62 @@ class WebController extends Controller
 
     }
 
+
+
+    public function  actionEditPhoto(){
+
+
+            $serviceModle = new UserServiceModle();
+            $user = \Yii::$app->user->identity;
+            $modle = $serviceModle->getGrzlByUserId($user->id);
+            //个人相册
+            $userImages = $serviceModle->selectUserImageListById($user->id,'photo');
+            $data =  ['modle'=>$modle,'user'=>$user,'userImages'=>$userImages,'imageBase'=>$this->imageBase];
+
+            return  $this->render("edit_photo",$data);
+	}
+
+
+
+	public function actionDoEditPhoto(){
+
+
+
+        $user = \Yii::$app->user->identity;
+
+        $serviceModle = new UserServiceModle();
+
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+         if (Yii::$app->request->isPost == 1) {
+
+
+             $imgPath = Yii::$app->request->post("imgPath", "");
+
+             $keyWord = Yii::$app->request->post("keyWord", "");
+
+             if($keyWord == 'add'){
+                 $serviceModle->addPhoto($user->id,$imgPath,'photo');
+             }else{
+                 $serviceModle->deletePhoto($user->id,$imgPath,'photo');
+             }
+
+
+             return [
+                 'message' =>"操作成功!",
+                 'code' => 1,
+                 'data'=>"",
+             ];
+         }
+
+
+    }
+
+
+
+
+
+
     /**
      * 编辑择偶要求
      */
@@ -226,6 +313,13 @@ class WebController extends Controller
         $user = \Yii::$app->user->identity;
 
         $modle = $serviceModle->getZobzByUserId($user->id);
+
+        if(!$modle){
+            $modle = new FuserRequest();
+            $modle->user_id = $user->id;
+            $modle->save();
+            $modle = $serviceModle->getZobzByUserId($user->id);
+        }
 
 
 
@@ -250,9 +344,12 @@ class WebController extends Controller
             }
 
             $age = $modle['age'];
+            $age_min = '';
+            $age_max = '';
 
             if($age){
                 $ageArray = explode('~',$age);
+
 
                 if(sizeof($ageArray)==2){
                     $age_min = $ageArray[0];
@@ -270,10 +367,9 @@ class WebController extends Controller
 
             }
             $data =  ['modle'=>$modle,'from'=>$from,'height_min'=>$height_min,'height_max'=>$height_max,'age_min'=>$age_min,'age_max'=>$age_max];
+            return $this->render("edit_zobz",$data);
         }
 
-
-        return $this->render("edit_zobz",$data);
 
     }
 
@@ -282,7 +378,7 @@ class WebController extends Controller
     /**
      *  提交择偶要求
      */
-    public function actionDoEditZobz($from="1"){
+    public function actionDoEditZobz(){
 
         $user = \Yii::$app->user->identity;
         $userId = $user->id;
@@ -336,6 +432,8 @@ class WebController extends Controller
            $drinkStatus  = Yii::$app->request->post("drinkStatus", "");
 
            $smokeStatus  = Yii::$app->request->post("smokeStatus", "");
+
+           $from = Yii::$app->request->post("from", "");
 
 
 
@@ -414,7 +512,7 @@ class WebController extends Controller
 
             }else{
                 //跳转编辑整合需求
-                $this->redirect(array('/web/edit-shzk','from'=>1));
+                $this->redirect(array('/web/edit-shzk','from'=>$from));
 
             }
 
@@ -428,10 +526,12 @@ class WebController extends Controller
     /**
      * 编辑个人信息
      */
-    public function actionEditShzk($from){
+    public function actionEditShzk($from="1"){
 
 
-        $from =】''
+
+
+
 
         $user = \Yii::$app->user->identity;
         $userId = $user->id;
@@ -440,12 +540,101 @@ class WebController extends Controller
 
         $modle = $serviceModle->getShztByUserId($userId);
 
+
+        if(!$modle){
+            $modle = new FuserLivingSatus();
+            $modle->user_id = $user->id;
+            $modle->save();
+            $modle = $serviceModle->getShztByUserId($userId);
+        }
+
        // getShztByUserId
 
-        $data = ['modle'=>$modle];
+        $data = ['modle'=>$modle,'from'=>$from];
 
-        return $this->render('edit_shzk',$data),;
+        return $this->render('edit_shzk',$data);
     }
+
+
+    /**
+     * 编辑兴趣爱好
+     */
+    public function actionEditXqhh($from="1"){
+
+
+        $user = \Yii::$app->user->identity;
+        $userId = $user->id;
+        $serviceModle  =  new UserServiceModle();
+        $modle = $serviceModle->getShztByUserId($userId);
+        // getShztByUserId
+        $data = ['modle'=>$modle,'from'=>$from];
+        return $this->render('edit_xqhh',$data);
+    }
+
+
+    /**
+     * 编辑兴趣爱好
+     */
+    public function actionDoEditXqhh($from="1"){
+
+
+
+        $user = \Yii::$app->user->identity;
+        $userId = $user->getId();
+
+
+
+
+        if (Yii::$app->request->isPost == 1) {
+
+            $modle = FuserLivingSatus::findOne($userId);
+            if ($modle) {
+                $operation = "update";
+            } else {
+                $operation = "insert";
+                $modle = new FuserLivingSatus();
+                $modle->user_id = $userId;
+            }
+
+
+            $from = Yii::$app->request->post("from", "");
+
+            $favoriteMusic = Yii::$app->request->post("favoriteMusic", "");
+
+
+            $favoriteFilm = Yii::$app->request->post("favoriteFilm", "");
+
+            $favoriteSports = Yii::$app->request->post("favoriteSports", "");
+
+            $favoritePet = Yii::$app->request->post("favoritePet", "");
+
+
+            $modle->favorite_music = $favoriteMusic;
+
+            $modle->favorite_film = $favoriteFilm;
+
+            $modle->favorite_sports = $favoriteSports;
+
+            $modle->favorite_pet = $favoritePet;
+
+
+            if ($operation == 'update') {
+                $modle->update();
+            } elsE {
+                $modle->save();
+            }
+
+
+            //跳转首页
+
+            $this->redirect(array('/web/index', 'pageNum' => 1));
+
+        }
+
+
+    }
+
+
 
 
     /**
@@ -456,9 +645,9 @@ class WebController extends Controller
 
 
         $user = \Yii::$app->user->identity;
-        $userId = $user->i
+        $userId = $user->getId();
 
-]]
+
 
 
         if (Yii::$app->request->isPost == 1) {
@@ -466,19 +655,19 @@ class WebController extends Controller
             $modle = FuserLivingSatus::findOne($userId);
             if($modle){
                 $operation = "update";
-            }elsE{
+            }else{
                 $operation = "insert";
                 $modle = new FuserLivingSatus();
                 $modle->user_id = $userId;
 
-                $from->
+
             }
 
 
 
 
 
-
+            $from = Yii::$app->request->post("from", "");
 
             $smokingStatus = Yii::$app->request->post("smokingStatus", "");
 
@@ -501,7 +690,7 @@ class WebController extends Controller
 
             $modle->live_with_parents = $liveWithParents;
 
-            $modle->favorite_dates = $favoriteDates;
+            $modle->favorite_date = $favoriteDates;
 
             if($operation == 'update'){
                 $modle->update();
@@ -517,7 +706,7 @@ class WebController extends Controller
 
             }else{
                 //跳转编辑整合需求
-                $this->redirect(array('/web/edit-shzk','from'=>1));
+                $this->redirect(array('/web/edit-xqhh','from'=>$from));
 
             }
 
@@ -625,7 +814,7 @@ class WebController extends Controller
 
             }else{
                 //跳转编辑整合需求
-                $this->redirect(array('/web/edit-zobz','from'=>1));
+                $this->redirect(array('/web/edit-zobz','from'=>$from));
 
             }
 
@@ -667,11 +856,11 @@ class WebController extends Controller
         //个人相册
         $userImages = $serviceModle->selectUserImageListById($uid,'photo');
         //访问记录加1
-        $serviceModle->addViewRecord($uid,$user->id);
+        $serviceModle->addViewRecord($user->id,$uid);
         //问候语
 
         //获取用户设置
-        $userSetting = $serviceModle->selectUserSettingById($user->id);
+        $userSetting = $serviceModle->selectUserSettingById($uid);
 
         //问候语
         $greetingTempList = $serviceModle->selectGreetingTemp(1);
@@ -1000,8 +1189,60 @@ class WebController extends Controller
     }
 
 
-    public function actionLogout()
-    {
+    /**
+     * 获取推荐列表
+     * @param $pageNum
+     * @return array
+     * @throws \yii\db\Exception
+     */
+    public function actionLoadRecommentUserList($pageNum){
+
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $serviceModle = new UserServiceModle();
+
+        $user = \Yii::$app->user->identity;
+
+        //推荐列表
+
+        $offset = ($pageNum-1)*$this->pageSize;
+        $recommendUser = $serviceModle->selectRecommendUsers($user,$offset,$this->pageSize);
+
+        $data =  ['dataList'=>$recommendUser,'pageNum'=>$pageNum,'imageBase'=>$this->imageBase];
+
+        return [
+             'message' => '获取成功!',
+             'code' => 1,
+             'data'=>$data,
+         ];
+
+    }
+
+
+    public function actionLoadActivityList($pageNum){
+
+
+
+        //活动列表
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $serviceModle = new UserServiceModle();
+
+        $fActivityList = $serviceModle->selectActivityList($pageNum,$this->pageSize);
+
+        $data =  ['dataList'=>$fActivityList,'pageNum'=>$pageNum];
+
+        return [
+            'message' => '获取成功!',
+            'code' => 1,
+            'data'=>$data,
+        ];
+
+    }
+
+
+
+
+    public function actionLogout(){
         Yii::$app->user->logout();
 
         return $this->render('h5_login');
@@ -1073,6 +1314,101 @@ class WebController extends Controller
     }
 
 
+    public function actionMsgList($fromUserId){
+
+
+
+         //系统推荐人
+        $user = \Yii::$app->user->identity;
+        $userId = $user->id;
+        $baseMsg = FuserBaseMsg::findOne($userId);
+
+        $serviceModle = new UserServiceModle();
+
+        $serviceModle->updateMsgState($fromUserId,$userId,1);
+
+        $currentDate = date('Y年m月d日');
+
+        $msgList = $serviceModle->selectMsgRecord($userId,$fromUserId);
+
+        $returnArray = array();
+
+        if($msgList){
+            $tempMsgList =array();
+            $size = sizeof($msgList);
+
+            for($i=0;$i<$size;$i++){
+                array_push($tempMsgList,$msgList[$size-$i-1]);
+            }
+            $tempDate ='';
+
+
+
+            foreach ($tempMsgList as $item){
+
+                $itemDate = date('Y年m月d日',strtotime($item['create_time']));
+
+                if($item['to_user_id']!=$userId){
+                    $item['show_fla'] = 1;
+                }else{
+                    $item['show_fla'] = 0;
+                }
+
+                $item['show_date'] = '';
+
+                if($itemDate!=$tempDate){
+                    $item['show_date'] = $itemDate;
+                    $tempDate = $itemDate;
+                }
+
+                array_push($returnArray,$item);
+
+            }
+
+        }
+
+        $toUser = $serviceModle->selectFUserDetailVoByUserId($fromUserId);
+
+        $data =  ['msgList'=>$returnArray,'toUser'=>$toUser,'imageBase'=>$this->imageBase,'fromUser'=>$baseMsg,'currentDate'=>$currentDate];
+
+        return $this->render('msg_list',$data);
+
+    }
+
+    /**
+     * 给其他人发送信息
+     * @return
+     */
+    public function actionSendMsg(){
+
+
+
+        //系统推荐人
+        $user = \Yii::$app->user->identity;
+        $userId = $user->id;
+        $state = 0 ;
+
+        $serviceModle = new UserServiceModle();
+
+        if(Yii::$app->request->isPost==1) {
+
+            $toUserId = Yii::$app->request->post("toUserId", "");
+            $msgContent = Yii::$app->request->post("msgContent", "");
+            $serviceModle->sendMessage($userId,$toUserId,$msgContent,$state);
+
+            \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            return [
+                'message' => '发送成功!',
+                'code' => 1,
+                'data'=>'',
+            ];
+
+        }
+
+
+
+
+    }
 
 
 }

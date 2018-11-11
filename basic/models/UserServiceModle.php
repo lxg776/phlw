@@ -259,12 +259,12 @@ class UserServiceModle extends Model
 
 
 
-    public function sendMessage($userId,$friendId,$content){
+    public function sendMessage($userId,$friendId,$content,$msgState){
 
 
         $sql = "insert INTO f_message(from_user_id,to_user_id,msg_content,msg_state) VALUES (:from_user_id,:to_user_id,:msg_content,:msg_state)";
 
-        $query  = \Yii::$app->getDb()->createCommand($sql,[':from_user_id'=>$userId,':to_user_id'=>$friendId,':msg_content'=>$content,':msg_state'=>0 ])->execute();
+        $query  = \Yii::$app->getDb()->createCommand($sql,[':from_user_id'=>$userId,':to_user_id'=>$friendId,':msg_content'=>$content,':msg_state'=>$msgState ])->execute();
 
     }
 
@@ -299,8 +299,6 @@ class UserServiceModle extends Model
             $insertSql = "insert into ucenter_identificaion(user_id,real_name,idcard_type,idcard_no,idcard_imgs,cellphone)values(:user_id,:real_name,'idcard',:idcard_no,:idcard_imgs,:cellphone)";
             $insertQuery  = \Yii::$app->getDb()->createCommand($insertSql,[':cellphone'=>$phone,':real_name'=>$real_name,':idcard_no'=>$idcard_no,':idcard_imgs'=>$idcard_imgs,':user_id'=>$userId ])->execute();
         }
-
-
 
     }
 
@@ -483,22 +481,41 @@ class UserServiceModle extends Model
 
         $query  = \Yii::$app->getDb()->createCommand($sql,[':userId'=>$userId ])->queryAll();
 
+
+
         $num = count($query);
 
-        for($i=0;$i<$num;++$i){
-            $birth_date = $query[$i]['birth_date'];
+        $returnList = array();
+        $idsSet = array();
 
-            if($birth_date){
-                $age = CommonUtil::getAge($birth_date);
-                $query[$i]['age'] = $age ;
-            }else{
-                $query[$i]['age'] = '不限' ;
+        if($num>0){
+            foreach ($query as $item){
+
+                    array_push($idsSet,$item['from_user_id']);
+                    if(count($idsSet) == count(array_unique($idsSet))){
+                        // 该数组没有重复值
+                        array_push($returnList,$item);
+                        $idsSet = array_unique($idsSet);
+                    }
             }
 
         }
 
+        $num = count($returnList);
 
-        return $query;
+        for($i=0;$i<$num;++$i){
+            $birth_date = $returnList[$i]['birth_date'];
+
+            if($birth_date){
+                $age = CommonUtil::getAge($birth_date);
+                $returnList[$i]['age'] = $age ;
+            }else{
+                $returnList[$i]['age'] = '不限' ;
+            }
+
+        }
+
+        return $returnList;
 
 
     }
@@ -751,9 +768,13 @@ ctime,cover_image from f_activity as f  where f.show_status = 'show'  ORDER BY c
 
         if($typeList){
             $query['type_list'] = $typeList;
-            if($typeList){
+            if(sizeof($typeList)>0){
                 $query['memberTypeVo'] = $typeList[0];
+            }else{
+                $query['memberTypeVo'] = '';
             }
+        }else{
+            $query['memberTypeVo'] = '';
         }
 
         $birth_date = $query['birth_date'];
@@ -768,6 +789,56 @@ ctime,cover_image from f_activity as f  where f.show_status = 'show'  ORDER BY c
         return $query;
 
     }
+
+
+    /**
+     * 更新 信息信息的状态
+     * @param $fromUserId
+     * @param $toUserId
+     * @throws \yii\db\Exception
+     */
+    public function updateMsgState($fromUserId,$toUserId,$msg_state){
+
+        $sql = "update f_message set msg_state = :msg_state where from_user_id = :from_user_id and to_user_id = :to_user_id";
+
+        $query =  \Yii::$app->getDb()->createCommand($sql,[':msg_state'=>$msg_state,':from_user_id' => $fromUserId,':to_user_id'=>$toUserId])->execute();
+
+
+
+    }
+
+    public function  selectMsgRecord($fromUserId,$toUserId){
+
+        $sql = "select m.*,uc_user.sex as f_sex,fuser.nikename as f_nikename,fuser.birth_date as f_birth_date,fuser.avatar as f_avatar ,fuser.height as f_height,fuser.month_income as f_month_income,
+    fuser.education as f_education,fuser.profession as f_profession,fuser.marital_status as f_marital_status , tuser.nikename as t_nikename,tuser.birth_date as t_birth_date,tuser.height as t_height,tuser.month_income as t_month_income,
+    tuser.education as t_education,tuser.profession as t_profession,tuser.marital_status as t_marital_status 
+    from f_message as m left join ucenter_user as uc_user on m.from_user_id = uc_user.user_id
+                        left join f_user_base_msg as fuser on m.from_user_id = fuser.user_id
+                        left join  f_user_base_msg as tuser on m.to_user_id = tuser.user_id  where (from_user_id= :from_user_id and to_user_id= :to_user_id ) 
+        or (from_user_id= :to_user_id and to_user_id= :from_user_id ) order by create_time desc ";
+
+        return $query =  \Yii::$app->getDb()->createCommand($sql,[':from_user_id'=>$fromUserId,':to_user_id' => $toUserId])->queryAll();
+    }
+
+
+    /**
+     * 发送信息
+     * @param $fromUserId
+     * @param $toUserId
+     * @param $msgContent
+     * @param $state
+     * @throws \yii\db\Exception
+     */
+    public function sendMsg($fromUserId,$toUserId,$msgContent,$state){
+
+        $sql = "insert into f_message(from_user_id,to_user_id,msg_content,msg_state)values(:from_user_id,:to_user_id,:msg_content,:msg_state)";
+        $query =  \Yii::$app->getDb()->createCommand($sql,[':from_user_id' => $fromUserId,':to_user_id'=>$toUserId,':msg_content'=>$msgContent,':msg_state'=>$state])->execute();
+
+    }
+
+
+
+
 
 
 

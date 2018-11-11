@@ -8,9 +8,10 @@
 
     <ul id="page3_p1" class="aui-list aui-media-list">
 
-        <?php  foreach ($msgList as $item)  ?>
+        <?php  foreach ($msgList as $item){  ?>
+
             <li class="aui-list-item" >
-                <a href="javascript:;" onclick="getMsgList(<?php echo $item['from_user_id'] ?> )">
+                <a href="javascript:;" onclick="getMsgList(<?php echo $item['user_id'] ?>)">
                     <div class="aui-media-list-item-inner">
 
                         <div class="aui-list-item-media" style="width: 6.0rem; height: 6.0rem;">
@@ -63,14 +64,14 @@
                 </a>
             </li>
 
-        </c:forEach>
+        <?php }?>
     </ul>
 
 
     <ul id="page3_p2" class="aui-list aui-media-list aui-hide">
         <?php  foreach ($viewRecordList as $item){  ?>
             <li class="aui-list-item">
-                <a href="javascript:;" onclick="viewUser(<?php echo $item['r_b_user_id'] ?>)">
+                <a href="javascript:;" onclick="viewUser(<?php echo $item['base_user_id'] ?>)">
                     <div class="aui-media-list-item-inner">
 
                         <div class="aui-list-item-media" style="width: 6.0rem; height: 6.0rem;">

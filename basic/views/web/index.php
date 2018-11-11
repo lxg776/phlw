@@ -78,7 +78,7 @@ $this->head();
         </div>
         <div class="aui-bar-tab-item" tapmode>
             <?php if($unReadCount>0){ ?>
-                <div class="aui-badge">${unReadCount}</div>
+                <div class="aui-badge"><?php echo  $unReadCount ?></div>
             <?php } ?>
             <i class="aui-iconfont aui-icon-comment"></i>
             <div class="aui-bar-tab-label">消息</div>
@@ -92,6 +92,65 @@ $this->head();
         </ul>
 
     </div>
+
+
+<div id="tempUser"  style="display: none">
+    <li class="aui-list-item">
+        <div class="aui-media-list-item-inner">
+            <div class="aui-list-item-media" style="width: 7rem; height: 7rem;">
+                <img src="#image" >
+            </div>
+            <div class="aui-list-item-inner">
+                <div class="aui-list-item-text">
+                    <div class="aui-list-item-title">#nikename</div>
+
+                    <div class="aui-list-item-right aui-greed">实名</div>
+                </div>
+                <div class="aui-list-item-text">
+                    <div class="aui-list-item-text">#age岁</div>
+                    <div class="aui-list-item-text">#profession</div>
+                    <div class="aui-list-item-text">#heightcm</div>
+                </div>
+
+                <div class="aui-list-item-text" style="color: #0a0c0e">
+                    择偶条件:我想找寻靖西#zo
+                </div>
+            </div>
+        </div>
+        <div class="aui-info" style="padding-top:0">
+            <div class="aui-info-item">
+                <a href="#">打招呼</a>
+            </div>
+            <div class="aui-info-item">
+                <a href="javascript:;">发信息</a>
+            </div>
+
+            <div class="aui-info-item" style="padding-right: 10px;">
+                <a href="#">帮我联系她</a>
+            </div>
+
+        </div>
+    </li>
+
+</div>
+
+
+<div id="tempActivity"  style="display: none">
+
+    <div class="aui-card-list">
+        <div class="aui-card-list-header">
+            #title<small>活动时间:#activityTime</small>
+        </div>
+        <div class="aui-card-list-content">
+            <img src="#img" />
+        </div>
+        <div class="aui-card-list-footer">
+            <div>报名费用:#signCost元/人</div>
+            <div>单身交友</div>
+        </div>
+    </div>
+
+</div>
 
 
 
@@ -137,18 +196,59 @@ $this->head();
 <?php
 
 $this->registerJsFile("@web/cdn/aui/script/aui-tab.js",['depends'=>'yii\web\YiiAsset','position'=>\yii\web\View::POS_HEAD]);
+
 $this->registerJsFile("@web/cdn/aui/script/aui-popup.js",['depends'=>'yii\web\YiiAsset','position'=>\yii\web\View::POS_HEAD]);
 
 $this->registerJsFile("@web/cdn/aui/script/aui-dialog.js",['depends'=>'yii\web\YiiAsset','position'=>\yii\web\View::POS_HEAD]);
+
 $this->registerJsFile("@web/cdn/viewerjs/dist/viewer.min.js",['depends'=>'yii\web\YiiAsset','position'=>\yii\web\View::POS_HEAD]);
+
 $this->registerCssFile("@web/cdn/viewerjs/dist/viewer.min.css",['depends'=>'yii\web\YiiAsset','position'=>\yii\web\View::POS_HEAD]);
+
+$this->registerJsFile("@web/cdn/aui/script/aui-scroll.js",['depends'=>'yii\web\YiiAsset','position'=>\yii\web\View::POS_HEAD]);
 
 ?>
 
 <script language="JavaScript">
+
+
+
+
     apiready = function(){
         api.parseTapmode();
     }
+
+
+
+
+    function changePageByUrl(url){
+        if(url.endsWith("page1")){
+            changePage(1);
+            changeActivity(1);
+        }else if(url.endsWith("page2")){
+            changePage(2);
+            changeActivity(2);
+        }else if(url.endsWith("page3")){
+            changePage(3);
+            changeActivity(3);
+        }else if(url.endsWith("page4")){
+            changePage(4);
+            changeActivity(4);
+        }
+    }
+
+    function changeActivity(index) {
+
+        $("#footer").children(".aui-bar-tab-item").removeClass("aui-active");
+        $("#footer").children(".aui-bar-tab-item").eq(index-1).addClass("aui-active");
+    }
+
+
+    $(document).ready(function () {
+            changePageByUrl(window.location.href);
+        }
+    );
+
 
 
     $("#greetingCloseBtn").click(function () {
@@ -320,6 +420,14 @@ $this->registerCssFile("@web/cdn/viewerjs/dist/viewer.min.css",['depends'=>'yii\
     }
 
 
+    //活动详情
+    function detailActivtiy(activityId) {
+        url = "<?php echo $baseUrl."/index.php?r=web/activity-detail&activityId="?>"+activityId;
+        window.location.href= url;
+        // console.log("wtf");
+    }
+
+
     $("#logoutBtn").click(function () {
 
         url = "<?php echo $baseUrl."/index.php?r=web/logout"?>";
@@ -333,8 +441,189 @@ $this->registerCssFile("@web/cdn/viewerjs/dist/viewer.min.css",['depends'=>'yii\
         window.location.href = url;
     });
 
-    // View a list of images
-    var viewer = new Viewer(document.getElementById('images'));
+    //获取消息列表
+    function getMsgList(fromUserId) {
+        url = "<?php echo $baseUrl."/index.php?r=web/msg-list&" ?> fromUserId="+fromUserId;
+        window.location.href= url;
+        // console.log("wtf");
+    }
+
+
+    var scroll = new auiScroll({
+        listen:true,
+        distance:200 //判断到达底部的距离，isToBottom为true
+    },function(ret){
+        if(ret.isToBottom){
+            //  document.getElementById("demo").textContent = "已到达底部";
+            url = window.location.href;
+
+            if(url.endsWith("page1")||url.endsWith("index")){
+                loadMoreUser();
+            }else if(url.endsWith("page2")){
+                loadMoreActivity();
+            }
+
+        }else{
+
+
+        }
+    });
+
+
+    var pageSize =15;
+    var currentPage =1;
+    var activity_currentPage =1;
+
+
+    var imageBase = "<?php echo $imageBase ?>";
+
+
+    function loadMoreUser() {
+        var userloadFla = false;
+        userCount = $("#listUser").children(".aui-list-item").length;
+        //document.getElementById("demo").textContent = "滚动高度："+userCount;
+        pageNum = parseInt((userCount - 1) / pageSize) + 2;
+
+        if (!userloadFla && (pageNum > currentPage)) {
+            $.ajax({
+                type: "GET",
+                url: "<?php echo $baseUrl . "/index.php?r=web/load-recomment-user-list" ?>",
+                data: "pageNum=" + pageNum,
+                async: false,
+                success: function (data) {
+                    userloadFla = true;
+                    currentPage = data.data.pageNum;
+                    if (data.code == 1) {
+                        htmlString = ""
+                        $.each(data.data.dataList, function (i, value) {
+                            htmlString = htmlString + getUserHtml(value);
+                        });
+                        $("#listUser").append(htmlString);
+                    } else {
+                        msg(data.message);
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    userloadFla = true;
+                }
+            });
+        }
+
+
+        function getUserHtml(item) {
+            tempHtml = $("#tempUser").html().toString();
+            if (item.nikename == null) {
+                item.nikename = ' ';
+            }
+            tempHtml = tempHtml.replace("#nikename", item.nikename);
+
+            if (item.profession == null) {
+                item.profession = ' ';
+            }
+
+            tempHtml = tempHtml.replace("#profession", item.profession);
+
+            if (item.height == null) {
+                item.height = ' ';
+            }
+
+            tempHtml = tempHtml.replace("#height", item.height);
+
+            tempHtml = tempHtml.replace("#zo", getUserRequest(item));
+            tempHtml = tempHtml.replace("#toUser", item.user_id);
+
+
+            if (item.age == null) {
+                item.age = ' ';
+            }
+            tempHtml = tempHtml.replace("#age", item.age);
+
+            if (item.avatar != null) {
+                tempHtml = tempHtml.replace("#image", imageBase + item.avatar);
+            } else {
+                if (item.sex == '1') {
+                    tempHtml = tempHtml.replace("#image", '<?php echo $baseUrl ?>/cdn/image/default_man_icon.png');
+                } else {
+                    tempHtml = tempHtml.replace("#image", '<?php echo $baseUrl ?>/cdn/image/default_woman_icon.png');
+                }
+            }
+            console.log(tempHtml);
+            return tempHtml;
+        }
+
+
+        function getActivityHtml(item) {
+            tempHtml = $("#tempActivity").html().toString();
+            tempHtml = tempHtml.replace("#title", item.title);
+            tempHtml = tempHtml.replace("#activityTime", item.activity_time);
+            tempHtml = tempHtml.replace("#img", imageBase + item.cover_image);
+            tempHtml = tempHtml.replace("#signCost", item.sign_cost);
+            console.log(tempHtml);
+            return tempHtml;
+        }
+
+
+        function loadMoreActivity() {
+            var activityloadFla = false;
+
+            userCount = $("#activityList").children(".aui-card-list").length;
+            //document.getElementById("demo").textContent = "滚动高度："+userCount;
+            pageNum = parseInt((userCount - 1) / pageSize) + 2;
+
+            if (!activityloadFla && (pageNum > activity_currentPage)) {
+                $.ajax({
+                    type: "GET",
+                    url: "<?php echo $baseUrl . "/index.php?r=web/load-activity-list" ?>",
+                    data: "pageNum=" + pageNum,
+                    async: false,
+                    success: function (data) {
+                        activityloadFla = true;
+                        activity_currentPage = data.data.pageNum;
+                        if (data.code == 1) {
+                            htmlString = ""
+                            $.each(data.data.dataList, function (i, value) {
+                                htmlString = htmlString + getActivityHtml(value);
+                            });
+                            $("#activityList").append(htmlString);
+                        } else {
+                            msg(data.message);
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        activityloadFla = true;
+                    }
+                });
+            }
+        }
+
+
+
+
+        function getUserRequest(item) {
+            tempHtml = "";
+            if (item.zo_age) {
+                tempHtml = tempHtml + "年龄在" + item.zo_age + "岁,";
+            }
+            if (item.zo_height) {
+                tempHtml = tempHtml + "身高" + item.zo_height + "cm,";
+            }
+            if (item.zo_income_monthly) {
+                tempHtml = tempHtml + "月收入" + item.zo_income_monthly + ",";
+            }
+
+            if (item.sex == '1') {
+                tempHtml = tempHtml + "的男性";
+            }
+            if (item.sex == '2') {
+                tempHtml = tempHtml + "的女性";
+            }
+            return tempHtml;
+        }
+
+
+        // View a list of images
+        var viewer = new Viewer(document.getElementById('images'));
+    }
 
 
 </script>

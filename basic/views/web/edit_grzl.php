@@ -634,7 +634,7 @@ $this->registerCssFile("@web/cdn/cropper/cropper.css",['depends'=>'yii\web\YiiAs
 
 
 
-            <div class="aui-card-list"  <?php if($from !=1 ){ ?>
+            <div class="aui-card-list"  <?php if($from =='1' ){ ?>
                 style="display: none;" <?php }?> >
                 <div class="aui-card-list-header" style="color: #757575; font-size: 14px;">
                     相册
