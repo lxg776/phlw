@@ -66,7 +66,7 @@ $baseUrl = \Yii::$app->request->baseUrl;
 </div>
 
 
-<script type="text/javascript" src="/hlw/basic/web/cdn/aui/script/aui-dialog.js"></script>
+<script type="text/javascript" src="<?php echo $baseUrl?>/cdn/aui/script/aui-dialog.js"></script>
 
 
 <script language="JavaScript">
@@ -100,7 +100,7 @@ $baseUrl = \Yii::$app->request->baseUrl;
 
         // 登录
         function login() {
-            url = "http://127.0.0.1/hlw/basic/web/index.php?r=web/do-login";
+            url = "<?php echo $baseUrl?>/index.php?r=web/do-login";
 
             var csrfToken = $('meta[name="csrf-token"]').attr("content");
 

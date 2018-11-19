@@ -21,16 +21,12 @@ $this->head();
 </header>
 
 <div style="padding-top: 2.25rem;padding-bottom: 2.25rem;background:#ffffff">
-
-
             <?php
 
                 /* @var $this yii\web\View */
                 $baseUrl = \Yii::$app->request->baseUrl;
                 echo $this->renderFile('@app/views/part/page1.php',['recommendUser'=>$recommendUser,'userSetting'=>$userSetting,'imageBase'=>$imageBase,'baseUrl'=>$baseUrl]);
             ?>
-
-
     <!--    page2-->
     <div  id="page2" class="aui-content aui-margin-b-15 aui-hide">
 
@@ -96,6 +92,7 @@ $this->head();
 
 <div id="tempUser"  style="display: none">
     <li class="aui-list-item">
+        <a href="javascript:;" onclick="viewUser(#v_user_id#)">
         <div class="aui-media-list-item-inner">
             <div class="aui-list-item-media" style="width: 7rem; height: 7rem;">
                 <img src="#image" >
@@ -117,12 +114,13 @@ $this->head();
                 </div>
             </div>
         </div>
+        </a>
         <div class="aui-info" style="padding-top:0">
             <div class="aui-info-item">
                 <a href="#">打招呼</a>
             </div>
             <div class="aui-info-item">
-                <a href="javascript:;">发信息</a>
+                <a href="javascript:;"  onclick="getMsgList(#to_user_id#)"  >发信息</a>
             </div>
 
             <div class="aui-info-item" style="padding-right: 10px;">
@@ -346,7 +344,7 @@ $this->registerJsFile("@web/cdn/aui/script/aui-scroll.js",['depends'=>'yii\web\Y
 
 
     function changePage(index) {
-        indexUrl = "http://127.0.0.1/hlw/basic/web/index.php?r=web/index";
+        indexUrl = "<?php echo $baseUrl ?>/index.php?r=web/index";
 
         if(index==1){
             $("#page1").removeClass("aui-hide");
@@ -356,7 +354,14 @@ $this->registerJsFile("@web/cdn/aui/script/aui-scroll.js",['depends'=>'yii\web\Y
 
             $('body,html').animate({scrollTop:0},100);
 
-            window.location.href=indexUrl+"#page1"
+            pageUrl = indexUrl+"#page1";
+
+            if(pageUrl != window.location.href ){
+                window.location.href= pageUrl;
+            }
+
+
+
 
         }else if(index==2){
             $("#page1").addClass("aui-hide");
@@ -366,7 +371,10 @@ $this->registerJsFile("@web/cdn/aui/script/aui-scroll.js",['depends'=>'yii\web\Y
 
             $('body,html').animate({scrollTop:0},100);
 
-            window.location.href=indexUrl+"#page2"
+            pageUrl = indexUrl+"#page2";
+            if(pageUrl != window.location.href ){
+                window.location.href= pageUrl;
+            }
         }else if(index==3){
             $("#page1").addClass("aui-hide");
             $("#page2").addClass("aui-hide");
@@ -374,7 +382,10 @@ $this->registerJsFile("@web/cdn/aui/script/aui-scroll.js",['depends'=>'yii\web\Y
             $("#page4").addClass("aui-hide");
             $('body,html').animate({scrollTop:0},100);
 
-            window.location.href=indexUrl+"#page3"
+            pageUrl = indexUrl+"#page3";
+            if(pageUrl != window.location.href ){
+                window.location.href= pageUrl;
+            }
         }else if(index==4){
             $("#page1").addClass("aui-hide");
             $("#page2").addClass("aui-hide");
@@ -382,7 +393,10 @@ $this->registerJsFile("@web/cdn/aui/script/aui-scroll.js",['depends'=>'yii\web\Y
             $("#page4").removeClass("aui-hide");
             $('body,html').animate({scrollTop:0},100);
 
-            window.location.href=indexUrl+"#page4"
+            pageUrl = indexUrl+"#page4";
+            if(pageUrl != window.location.href ){
+                window.location.href= pageUrl;
+            }
         }
     }
 
@@ -446,6 +460,50 @@ $this->registerJsFile("@web/cdn/aui/script/aui-scroll.js",['depends'=>'yii\web\Y
         url = "<?php echo $baseUrl."/index.php?r=web/msg-list&" ?> fromUserId="+fromUserId;
         window.location.href= url;
         // console.log("wtf");
+    }
+
+
+    function getActivityHtml(item) {
+        tempHtml = $("#tempActivity").html().toString();
+        tempHtml = tempHtml.replace("#title", item.title);
+        tempHtml = tempHtml.replace("#activityTime", item.activity_time);
+        tempHtml = tempHtml.replace("#img", imageBase + item.cover_image);
+        tempHtml = tempHtml.replace("#signCost", item.sign_cost);
+        console.log(tempHtml);
+        return tempHtml;
+    }
+
+    function loadMoreActivity() {
+        var activityloadFla = false;
+
+        userCount = $("#activityList").children(".aui-card-list").length;
+        //document.getElementById("demo").textContent = "滚动高度："+userCount;
+        pageNum = parseInt((userCount - 1) / pageSize) + 2;
+
+        if (!activityloadFla && (pageNum > activity_currentPage)) {
+            $.ajax({
+                type: "GET",
+                url: "<?php echo $baseUrl . "/index.php?r=web/load-activity-list" ?>",
+                data: "pageNum=" + pageNum,
+                async: false,
+                success: function (data) {
+                    activityloadFla = true;
+                    activity_currentPage = data.data.pageNum;
+                    if (data.code == 1) {
+                        htmlString = ""
+                        $.each(data.data.dataList, function (i, value) {
+                            htmlString = htmlString + getActivityHtml(value);
+                        });
+                        $("#activityList").append(htmlString);
+                    } else {
+                        msg(data.message);
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    activityloadFla = true;
+                }
+            });
+        }
     }
 
 
@@ -528,10 +586,10 @@ $this->registerJsFile("@web/cdn/aui/script/aui-scroll.js",['depends'=>'yii\web\Y
             }
 
             tempHtml = tempHtml.replace("#height", item.height);
-
             tempHtml = tempHtml.replace("#zo", getUserRequest(item));
             tempHtml = tempHtml.replace("#toUser", item.user_id);
-
+            tempHtml = tempHtml.replace("#to_user_id#", item.user_id);
+            tempHtml = tempHtml.replace("#v_user_id#", item.user_id);
 
             if (item.age == null) {
                 item.age = ' ';
@@ -551,54 +609,6 @@ $this->registerJsFile("@web/cdn/aui/script/aui-scroll.js",['depends'=>'yii\web\Y
             return tempHtml;
         }
 
-
-        function getActivityHtml(item) {
-            tempHtml = $("#tempActivity").html().toString();
-            tempHtml = tempHtml.replace("#title", item.title);
-            tempHtml = tempHtml.replace("#activityTime", item.activity_time);
-            tempHtml = tempHtml.replace("#img", imageBase + item.cover_image);
-            tempHtml = tempHtml.replace("#signCost", item.sign_cost);
-            console.log(tempHtml);
-            return tempHtml;
-        }
-
-
-        function loadMoreActivity() {
-            var activityloadFla = false;
-
-            userCount = $("#activityList").children(".aui-card-list").length;
-            //document.getElementById("demo").textContent = "滚动高度："+userCount;
-            pageNum = parseInt((userCount - 1) / pageSize) + 2;
-
-            if (!activityloadFla && (pageNum > activity_currentPage)) {
-                $.ajax({
-                    type: "GET",
-                    url: "<?php echo $baseUrl . "/index.php?r=web/load-activity-list" ?>",
-                    data: "pageNum=" + pageNum,
-                    async: false,
-                    success: function (data) {
-                        activityloadFla = true;
-                        activity_currentPage = data.data.pageNum;
-                        if (data.code == 1) {
-                            htmlString = ""
-                            $.each(data.data.dataList, function (i, value) {
-                                htmlString = htmlString + getActivityHtml(value);
-                            });
-                            $("#activityList").append(htmlString);
-                        } else {
-                            msg(data.message);
-                        }
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        activityloadFla = true;
-                    }
-                });
-            }
-        }
-
-
-
-
         function getUserRequest(item) {
             tempHtml = "";
             if (item.zo_age) {
@@ -611,10 +621,10 @@ $this->registerJsFile("@web/cdn/aui/script/aui-scroll.js",['depends'=>'yii\web\Y
                 tempHtml = tempHtml + "月收入" + item.zo_income_monthly + ",";
             }
 
-            if (item.sex == '1') {
+            if (item.sex == '2') {
                 tempHtml = tempHtml + "的男性";
             }
-            if (item.sex == '2') {
+            if (item.sex == '1') {
                 tempHtml = tempHtml + "的女性";
             }
             return tempHtml;

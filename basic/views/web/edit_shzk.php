@@ -115,7 +115,7 @@ $baseUrl = \Yii::$app->request->baseUrl;
 
 <div class="aui-content-padded">
 
-    <div class="aui-btn aui-btn-info  aui-btn-block" style="margin-top: 1rem;" id="regBtn">下一步</div>
+    <div class="aui-btn aui-btn-info  aui-btn-block" style="margin-top: 1rem;" id="regBtn">完成</div>
 
 
 </div>

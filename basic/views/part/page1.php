@@ -63,7 +63,7 @@
 
                                 <?php if($item['zo_income_monthly']){ ?>
                                     月收入<?php echo $item['zo_income_monthly']?>的
-                                <?php } ?><?php if($item['sex']==1){ ?>男性 <?php }?><?php if($item['sex']==2){ ?>女性 <?php }?>
+                                <?php } ?><?php if($item['sex']==2){ ?>男性 <?php }?><?php if($item['sex']==1){ ?>女性 <?php }?>
                         </div>
 
 
@@ -78,17 +78,7 @@
                 </div>
                 <div class="aui-info-item">
 
-                    <a href="javascript:;"  <?php if($userSetting['msg_send_status']==0){ ?>
-                       aui-popup-for="top-left
-                        <?php
-                    }
-                    ?>
-                    <?php if($userSetting['msg_send_status']==1){ ?>
-                    onclick="getMsgList(<?php echo $item['user_id'] ?>)"
-                    <?php
-                    }
-                    ?>
-                    > 发信息</a>
+                    <a href="javascript:;"  onclick="getMsgList(<?php echo $item['user_id'] ?>)" > 发信息</a>
                 </div>
 
                 <div class="aui-info-item" style="padding-right: 10px;">

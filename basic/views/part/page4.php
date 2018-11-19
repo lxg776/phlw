@@ -1,4 +1,7 @@
 
+
+
+
 <div  id="page4" class="aui-content aui-margin-b-15 aui-hide">
 
     <ul class="aui-list aui-media-list">
@@ -28,13 +31,15 @@
                 </div>
                 <div class="aui-list-item-inner">
                     <div class="aui-list-item-text">
-                        <div class="aui-list-item-title"><?php echo $modle['nikename'] ?>
-                            <?php if($modle['memberTypeVo']){
-                             ?>
-                            <font color="red">(<?php echo $modle['memberTypeVo']['info'] ?>)</font>
-                            <?php
-                             }
-                             ?>
+                        <div class="aui-list-item-title">
+                            <?php echo $modle['nikename'] ?>
+                                <?php if($modle['memberTypeVo']){
+                                    ?>
+                                    <font color="red">(<?php echo $modle['memberTypeVo']['info'] ?>)</font>
+                                    <?php
+                                }
+                                ?>
+
                             </div>
                         <div class="aui-list-item-right" style="display: none;">访问次数99</div>
                     </div>
@@ -42,6 +47,23 @@
                     <div class="aui-list-item-text" style="color:#757575;font-size: 14px;">
                         广西靖西市， <?php echo $modle['age'] ?>岁，<?php echo $modle['height'] ?> cm，<?php echo $modle['month_income'] ?>
                     </div>
+
+                    <div class="aui-list-item-text">
+                        <?php  if($modle['sex']==1){ ?>
+                            <img  src="<?php echo $baseUrl."/cdn/image/s_man_icon.jpg" ?>"  style="width:24px;height:24px;vertical-align:middle;" />
+                        <?php
+                        } else if($modle['sex']==2){ ?>
+
+                            <img  src="<?php echo $baseUrl."/cdn/image/s_woman_icon.jpg" ?>"  style="width:24px;height:24px;vertical-align:middle;" />
+                            <?php
+                        }
+                        ?>
+
+
+                    </div>
+
+
+
                 </div>
             </div>
         </li>
@@ -128,12 +150,21 @@
                     </div>
                     <div class="aui-list-item-text">
                         <div class="aui-list-item-left">年龄</div>
-                        <div class="aui-list-item-title"><?php echo $modle['r_age']?>岁</div>
+                        <div class="aui-list-item-title"><?php if(strpos($modle['r_age'],'以') == false){?><?php echo $modle['r_age']?> <?php if($modle['r_age']!='不限'){ ?>
+                                岁
+                            <?php }?><?php }else{ ?>
+                            <?php  echo str_replace("以","岁以",$modle['r_age']); }?>
+                        </div>
                     </div>
 
                     <div class="aui-list-item-text">
                         <div class="aui-list-item-left">身高</div>
-                        <div class="aui-list-item-title"><?php echo $modle['r_height']?>cm</div>
+                        <div class="aui-list-item-title"><?php if(strpos($modle['r_height'],'以') == false){?><?php echo $modle['r_height']?>
+                                <?php if($modle['r_height']!='不限'){ ?>
+                                    cm
+                                <?php }?>
+                            <?php }else{ ?>
+                                <?php  echo str_replace("以","cm以",$modle['r_height']); }?></div>
                     </div>
 
 

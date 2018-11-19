@@ -234,7 +234,7 @@ $baseUrl = \Yii::$app->request->baseUrl;
         <li class="aui-list-item">
             <div class="aui-list-item-inner">
                 <div class="aui-list-item-label" style="width: 80%;">
-    我同意并遵守 <a href="${ctx}/h5/agreement">《婚恋墙服务协议》</a>
+    我同意并遵守 <a href="<?php echo $baseUrl."/index.php?r=web/agreement"?>">《婚恋墙服务协议》</a>
                 </div>
                 <div class="aui-list-item-input" style="width: 80px;">
                     <input type="checkbox" class="aui-switch" name="isAgreement" value="true">

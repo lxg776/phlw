@@ -40,10 +40,10 @@ class WebController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout','index','login','do-login'],
+                'only' => ['logout','index','login','do-login','do-edit-photo','do-edit-zobz','do-edit-grzl','do-edit-xqhh','do-edit-shzk'],
                 'rules' => [
                     [
-                        'actions' => ['logout','index'],
+                        'actions' => ['logout','index','do-edit-photo','do-edit-zobz','do-edit-grzl','do-edit-xqhh','do-edit-shzk'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -78,8 +78,12 @@ class WebController extends Controller
     public function actionLogin()
     {
 
+        if(Yii::$app->user->isGuest){
+            return $this->render('h5_login');
+        }else{
+            $this->redirect(array('/web/index', 'pageNum' => 1));
+        }
 
-        return $this->render('h5_login');
     }
 
 
@@ -507,9 +511,7 @@ class WebController extends Controller
 
             if($from == 1){
                 //跳转首页
-                $this->redirect(array('/web/index','pageNum'=>1));
-
-
+                $this->redirect(array('/web/index','#'=>'page4'));
             }else{
                 //跳转编辑整合需求
                 $this->redirect(array('/web/edit-shzk','from'=>$from));
@@ -627,7 +629,7 @@ class WebController extends Controller
 
             //跳转首页
 
-            $this->redirect(array('/web/index', 'pageNum' => 1));
+            $this->redirect(array('/web/index','#'=>'page4'));
 
         }
 
@@ -701,7 +703,7 @@ class WebController extends Controller
 
             if($from == 1){
                 //跳转首页
-                $this->redirect(array('/web/index','pageNum'=>1));
+                $this->redirect(array('/web/index','#'=>'page4'));
 
 
             }else{
@@ -809,9 +811,7 @@ class WebController extends Controller
 
             if($from == 1){
                 //跳转首页
-                $this->redirect(array('/web/index','pageNum'=>1));
-
-
+                $this->redirect(array('/web/index','#'=>'page4'));
             }else{
                 //跳转编辑整合需求
                 $this->redirect(array('/web/edit-zobz','from'=>$from));
@@ -920,10 +920,9 @@ class WebController extends Controller
 
 
             //调用发送
-           // $result = json_decode(CommonUtil::CallAPI("GET",$url,false));
-
-            $resultCode =200;
-            //$resultCode = $result->code;
+            $result = json_decode(CommonUtil::CallAPI("GET",$url,false));
+            //$resultCode =200;
+            $resultCode = $result->code;
 
              if($resultCode == 200){
 
@@ -1039,7 +1038,7 @@ class WebController extends Controller
 
        $second = strtotime($enddate) - strtotime($startdate);
 
-       if ($second > 120) {
+       if ($second > 600) {
 
            return [
                'message' => "短信验证码超过有效期，请重新获取！",
@@ -1138,6 +1137,13 @@ class WebController extends Controller
             ];
         }
 
+    }
+
+
+    public function  actionAgreement(){
+
+
+	    return $this->render("agreement");
     }
 
 
@@ -1270,7 +1276,7 @@ class WebController extends Controller
             if($model->validate()){
                 $model->login();
 
-                $indexUrl = \Yii::$app->request->hostInfo."/hlw/basic/web/index.php?r=web/index";
+                $indexUrl = \Yii::$app->request->baseUrl."/index.php?r=web/index";
 
                 return [
                     'message' => '登录成功',

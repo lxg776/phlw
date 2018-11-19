@@ -183,7 +183,7 @@ $this->registerJsFile("@web/cdn/aui/script/aui-dialog.js",['depends'=>'yii\web\Y
             success: function (data) {
                 addMsgView(msgContent);
 
-                msg(data.message);
+                //msg(data.message);
             }
         });
         popup.hide();

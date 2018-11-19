@@ -675,7 +675,7 @@ ctime,cover_image from f_activity as f  where f.show_status = 'show'  ORDER BY c
 
         $q2 =" base.nikename,base.birth_date,base.height,base.profession,base.marital_status,base.from_city, base.from_area ";
 
-        $q3 = "  zo.sex ,zo.height as zo_height ,zo.income_monthly ,zo.education as zo_education, zo.age as zo_age, zo.income_monthly as zo_income_monthly";
+        $q3 = "  zo.sex as zo_sex ,zo.height as zo_height ,zo.income_monthly ,zo.education as zo_education, zo.age as zo_age, zo.income_monthly as zo_income_monthly";
 
         $from = " from ucenter_user as uc ";
 
@@ -732,8 +732,8 @@ ctime,cover_image from f_activity as f  where f.show_status = 'show'  ORDER BY c
 
 
 
-        $q1 = " uc.user_id , uc.user_name,uc.avatar, uc.nickname, uc.sex, uc.last_login_time, uc.last_login_ip,uc.create_time ";
-        $q2 = " base.nikename,base.birth_date,base.height,base.shape,base.year_income,base.month_income,base.education,base.disposition,base.profession,base.unit_property,
+        $q1 = " uc.user_id , uc.user_name,uc.avatar as u_avatar, uc.nickname, uc.sex, uc.last_login_time, uc.last_login_ip,uc.create_time ";
+        $q2 = " base.avatar,base.nikename,base.birth_date,base.height,base.shape,base.year_income,base.month_income,base.education,base.disposition,base.profession,base.unit_property,
     base.work_unit,base.work_place,base.house_status,base.marital_status,base.children_status,base.soliloquy,base.declaration, base.from_city_id, base.from_area_id ";
         $q3 = "  zo.age as r_age,zo.sex as r_sex,zo.height as r_height,zo.shape as r_shape,zo.income_monthly as r_income_monthly,zo.income_year as r_income_year,zo.house_state as r_house_state,zo.education as r_education,zo.marital_status as r_marital_status,zo.house_status as r_house_status,zo.car_status as r_car_status,zo.job as r_job,zo.friend_require as r_friend_require,
         zo.drink_status as r_drink_status,zo.smoke_status as r_smoke_status,zo.living_status as r_living_status,zo.child_status as r_child_status ";
